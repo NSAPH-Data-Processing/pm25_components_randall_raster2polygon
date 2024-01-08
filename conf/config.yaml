@@ -1,0 +1,26 @@
+defaults:
+- datapaths: datapaths.yaml
+- shapefiles: shapefiles.yaml
+
+year: 2022
+month: None
+
+# Satellite PM2.5 raw data information
+yearly_pm25_url: "https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25/folder/230744006317"
+# https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25c0p10/folder/237172657388 #higher resolution
+monthly_pm25_url: "https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25/folder/230743233223"
+# https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25c0p10/folder/237170622689 #higher resolution
+download_wait_time: 10 #seconds
+file_suffix: "V5GL04.HybridPM25.NorthAmerica." 
+#file name convention is V5GL04.HybridPM25.NorthAmerica.yyyymm-yyyymm.nc
+# e.g. V5GL04.HybridPM25.NorthAmerica.201801-201812.nc is the file for 2018
+layer: "GWRPM25" #geographic weighted regression PM2.5
+latitude_layer: "lat"
+longitude_layer: "lon"
+
+# Shapefiles information
+shapefile_polygon_name: cb_zcta #to be matched with cfg.shapefiles
+
+hydra:
+  run:
+    dir: logs/${now:%Y-%m-%d}/${now:%H-%M-%S}
