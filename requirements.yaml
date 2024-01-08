@@ -16,4 +16,4 @@ dependencies:
     - snakemake==7.30.1
     - selenium==4.16.0
     - webdriver_manager==4.0.1
-
+    - wget==3
