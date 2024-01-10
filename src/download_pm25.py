@@ -12,7 +12,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 logger = logging.getLogger(__name__)
 
-
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     """
@@ -21,13 +20,13 @@ def main(cfg):
     """
 
     # == url for download
-    url = cfg.time_freq.url
+    url = cfg.temporal_freq.url
 
     # == setup chrome driver
     # get the current working directory
     cwd = os.getcwd()
     target_dir = f"{cwd}/data/input/satellite_pm25"
-    target_file = f"{target_dir}/{cfg.time_freq.filename}"
+    target_file = f"{target_dir}/{cfg.temporal_freq.zipname}.zip"
 
     # Set up Chrome options for headless mode and automatic downloads
     chrome_options = Options()
@@ -87,7 +86,6 @@ def main(cfg):
         # Close the browser after completion or in case of an error
         driver.quit()
         logger.info("Download completed.")
-
 
 if __name__ == "__main__":
     main()

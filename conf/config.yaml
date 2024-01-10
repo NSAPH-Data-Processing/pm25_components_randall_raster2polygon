@@ -2,7 +2,7 @@ defaults:
   - _self_
   - datapaths: datapaths
   - shapefiles: shapefiles
-  - time_freq: annual  # annual, monthly
+  - temporal_freq: annual  # annual, monthly
 
 download_wait_time: 10 #seconds
 file_prefix: "V5GL04.HybridPM25.NorthAmerica" 
