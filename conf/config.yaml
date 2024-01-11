@@ -1,23 +1,12 @@
 defaults:
   - _self_
   - datapaths: datapaths
-  - shapefiles: shapefiles
-  - temporal_freq: annual  # annual, monthly
+  - shapefiles: zcta # zcta, county
+  - satellite_pm25: annual  # annual, monthly
 
 year: 2018
-download_wait_time: 10 #seconds
-
-# Raw satellite pm25 arguments
-file_prefix: "V5GL04.HybridPM25.NorthAmerica" 
-#file name convention is V5GL04.HybridPM25.NorthAmerica.yyyymm-yyyymm.nc
-# e.g. V5GL04.HybridPM25.NorthAmerica.201801-201812.nc is the file for 2018
-layer: "GWRPM25" #geographic weighted regression PM2.5
-latitude_layer: "lat"
-longitude_layer: "lon"
-
-# Shapefile aggregation arguments
+shapefile_year: 2020 #to be matched with cfg.shapefiles
 shapefile_polygon_name: cb_zcta #to be matched with cfg.shapefiles
-shapefile_year: 2010 #to be matched with cfg.shapefiles
 
 hydra:
   run:
