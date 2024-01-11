@@ -6,9 +6,9 @@ import wget
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
-    url = cfg.shapefiles[cfg.shapefile_polygon_name][cfg.year].url
+    url = cfg.shapefiles[cfg.shapefile_polygon_name][cfg.shapefile_year].url
 
-    tgt = f"data/input/shapefiles/shapefile_{cfg.shapefile_polygon_name}_{cfg.year}"
+    tgt = f"data/input/shapefiles/shapefile_{cfg.shapefile_polygon_name}_{cfg.shapefile_year}"
 
     tgtdir = os.path.dirname(tgt)
     tgtfile = os.path.basename(tgt)
@@ -16,7 +16,7 @@ def main(cfg):
     tgt = f"{tgtdir}/{tgtfile}"
     logging.info(f"Downloading {url}")
     wget.download(url, f"{tgt}.zip")
-    logging.info(f"Done.")
+    logging.info("Done.")
 
     # unzip with unzip library
     with zipfile.ZipFile(f"{tgt}.zip", "r") as zip_ref:
