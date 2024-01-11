@@ -20,13 +20,13 @@ def main(cfg):
     """
 
     # == url for download
-    url = cfg.temporal_freq.url
+    url = cfg.satellite_pm25.url
 
     # == setup chrome driver
     # get the current working directory
     cwd = os.getcwd()
     target_dir = f"{cwd}/data/input/satellite_pm25"
-    target_file = f"{target_dir}/{cfg.temporal_freq.zipname}.zip"
+    target_file = f"{target_dir}/{cfg.satellite_pm25.zipname}.zip"
 
     # Set up Chrome options for headless mode and automatic downloads
     chrome_options = Options()
@@ -67,7 +67,7 @@ def main(cfg):
 
         # Wait to make sure the file has downloaded
         while not os.path.exists(target_file):
-            time.sleep(cfg.download_wait_time)
+            time.sleep(cfg.satellite_pm25.download_wait_time)
         logger.info("Download completed.")
 
         # Unzip all contents in the same folder
@@ -77,7 +77,6 @@ def main(cfg):
         # Remove the zip file
         os.remove(target_file)
         logger.info("Unzipping completed.")
-        
 
     except Exception as e:
         logger.error(e)

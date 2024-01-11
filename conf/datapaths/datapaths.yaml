@@ -1,6 +1,6 @@
 # if files are stored within the local copy of the repository, then use null:
 input:
-  satellite_pm25: "~/Downloads/Annual"
+  satellite_pm25: null #"~/Downloads/Annual"
   shapefiles: null
 
 output:
