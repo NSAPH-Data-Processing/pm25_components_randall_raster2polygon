@@ -1,12 +1,13 @@
 defaults:
   - _self_
   - datapaths: datapaths
-  - shapefiles: zcta # zcta, county
-  - satellite_pm25: annual  # annual, monthly
+  - shapefiles: county # zcta, county
+  - satellite_pm25: monthly  # annual, monthly
 
-year: 2018
-shapefile_year: 2020 #to be matched with cfg.shapefiles
-shapefile_polygon_name: cb_zcta #to be matched with cfg.shapefiles
+year: 2011
+month: "01" # ignored if annual
+shapefile_year: 2011 #to be matched with cfg.shapefiles
+shapefile_polygon_name: cb_county #to be matched with cfg.shapefiles
 
 hydra:
   run:
