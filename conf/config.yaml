@@ -4,11 +4,19 @@ defaults:
   - shapefiles: county # zcta, county
   - satellite_pm25: monthly  # annual, monthly
 
+# == aggreagtion args
 year: 2011
 month: "01" # ignored if annual
+
+# == shapefile download args
 shapefile_year: 2011 #to be matched with cfg.shapefiles
 shapefile_polygon_name: cb_county #to be matched with cfg.shapefiles
+
+# == satellite pm25 download args
+download_path: "~/Downloads"
+download_wait_time: 5 #seconds
 
 hydra:
   run:
     dir: logs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    

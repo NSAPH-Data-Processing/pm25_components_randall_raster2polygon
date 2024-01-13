@@ -2,7 +2,6 @@ url: https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25c0p10/folder/237170622689
 # https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25/folder/230743233223 #lower resolution
 # https://wustl.app.box.com/v/ACAG-V5GL04-GWRPM25c0p10/folder/237170622689 #higher resolution
 
-download_wait_time: 5 #seconds
 zipname: Monthly
 
 #file name convention is V5GL04.HybridPM25.NorthAmerica.yyyymm-yyyymm.nc
