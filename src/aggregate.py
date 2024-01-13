@@ -28,12 +28,21 @@ def available_shapefile_year(year, shapefile_years_list: list):
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
-    # get shape name from config defaults
+    # get aggregation defaults
     shape = HydraConfig.get().runtime.choices.shapefiles
-    LOGGER.info(f"Running satellite_pm25_raster2polygon for shape: {shape}")
+    temporal_freq = HydraConfig.get().runtime.choices.satellite_pm25
+    if temporal_freq == "annual":
+        LOGGER.info(f"Running for: {temporal_freq} {shape} {cfg.year}")
+    elif temporal_freq == "monthly":
+        LOGGER.info(f"Running for: {temporal_freq} {shape} {cfg.year} {cfg.month}")
 
     # == load netcdf file
-    path = f"data/input/satellite_pm25/{cfg.satellite_pm25.zipname}/{cfg.satellite_pm25.file_prefix}.{cfg.year}01-{cfg.year}12.nc"
+    if temporal_freq == "annual":
+        filename = f"{cfg.satellite_pm25.file_prefix}.{cfg.year}01-{cfg.year}12.nc"
+    elif temporal_freq == "monthly":
+        filename = f"{cfg.satellite_pm25.file_prefix}.{cfg.year}{cfg.month}-{cfg.year}{cfg.month}.nc"
+    path = f"data/input/satellite_pm25/{cfg.satellite_pm25.zipname}/{filename}"
+    
     ds = xarray.open_dataset(path)
     layer = getattr(ds, cfg.satellite_pm25.layer)
 
@@ -75,7 +84,12 @@ def main(cfg):
     df["year"] = cfg.year
 
     # == save output file
-    output_file = f"data/output/satellite_pm25_raster2polygon/satellite_pm25_{shape}_{cfg.year}.parquet"
+    if temporal_freq == "annual":
+        filename = f"satellite_pm25_{shape}_{cfg.year}.parquet"
+    elif temporal_freq == "monthly":
+        filename = f"satellite_pm25_{shape}_{cfg.year}_{cfg.month}.parquet"
+    output_file = f"data/output/satellite_pm25_raster2polygon/{temporal_freq}/{filename}"
+
     df.to_parquet(output_file)
 
 if __name__ == "__main__":
