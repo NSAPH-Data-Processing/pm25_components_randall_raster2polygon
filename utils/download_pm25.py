@@ -23,9 +23,10 @@ def main(cfg):
     url = cfg.satellite_pm25.url
 
     # == setup chrome driver
-    # get the current working directory
-    cwd = os.getcwd()
-    target_dir = f"{cwd}/data/input/satellite_pm25"
+    # Expand the tilde to the user's home directory
+    target_dir = os.path.expanduser(cfg.download_path)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
     target_file = f"{target_dir}/{cfg.satellite_pm25.zipname}.zip"
 
     # Set up Chrome options for headless mode and automatic downloads
@@ -67,7 +68,7 @@ def main(cfg):
 
         # Wait to make sure the file has downloaded
         while not os.path.exists(target_file):
-            time.sleep(cfg.satellite_pm25.download_wait_time)
+            time.sleep(cfg.download_wait_time)
         logger.info("Download completed.")
 
         # Unzip all contents in the same folder
