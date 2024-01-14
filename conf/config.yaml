@@ -1,16 +1,17 @@
 defaults:
   - _self_
   - datapaths: datapaths
-  - shapefiles: county # zcta, county
-  - satellite_pm25: monthly  # annual, monthly
+  - shapefiles: shapefiles
+  - satellite_pm25: satellite_pm25
 
-# == aggreagtion args
-year: 2011
+# == aggregation args
+temporal_freq: monthly # annual, monthly to be matched with cfg.satellite_pm25
+year: 2020
 month: "01" # ignored if annual
 
 # == shapefile download args
-shapefile_year: 2011 #to be matched with cfg.shapefiles
-shapefile_polygon_name: cb_county #to be matched with cfg.shapefiles
+polygon_name: county # zcta, county to be matched with cfg.shapefiles
+shapefile_year: 2020 #to be matched with cfg.shapefiles
 
 # == satellite pm25 download args
 download_path: "~/Downloads"
