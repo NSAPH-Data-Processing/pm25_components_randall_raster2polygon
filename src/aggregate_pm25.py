@@ -41,7 +41,7 @@ def main(cfg):
         filename = f"{cfg.satellite_pm25.file_prefix}.{cfg.year}01-{cfg.year}12.nc"
     elif temporal_freq == "monthly":
         filename = f"{cfg.satellite_pm25.file_prefix}.{cfg.year}{cfg.month}-{cfg.year}{cfg.month}.nc"
-    path = f"data/input/satellite_pm25/{cfg.satellite_pm25.zipname}/{filename}"
+    path = f"data/input/satellite_pm25/{temporal_freq}/{filename}"
     
     ds = xarray.open_dataset(path)
     layer = getattr(ds, cfg.satellite_pm25.layer)
