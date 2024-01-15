@@ -29,7 +29,7 @@ rule download_shapefiles:
     output:
         f"data/input/shapefiles/shapefile_{polygon_name}_" + "{shapefile_year}/shapefile.shp" 
     shell:
-        "python src/download_shapefile.py shapefile_year={wildcards.shapefile_year}"
+        f"python src/download_shapefile.py polygon_name={polygon_name} " + "shapefile_year={wildcards.shapefile_year}"
 
 def get_shapefile_input(wildcards):
     shapefile_year = available_shapefile_year(int(wildcards.year), shapefile_years_list)
@@ -50,6 +50,6 @@ rule aggregate_pm25:
         )
     shell:
         (
-            f"python src/aggregate_pm25.py temporal_freq={temporal_freq} " + 
+            f"python src/aggregate_pm25.py polygon_name={polygon_name} temporal_freq={temporal_freq} " + 
             ("year={wildcards.year}" if temporal_freq == 'annual' else "year={wildcards.year} month={wildcards.month}")
         )

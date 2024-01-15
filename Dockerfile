@@ -17,4 +17,4 @@ RUN python utils/create_dir_paths.py datapaths.input.satellite_pm25.annual=null 
 
 # snakemake --configfile conf/config.yaml --cores 4 -C temporal_freq=annual
 ENTRYPOINT ["snakemake", "--configfile", "conf/config.yaml"]
-CMD ["--cores", "4", "-C", "temporal_freq=annual"]
+CMD ["--cores", "4", "-C", "polygon_name=county", "temporal_freq=annual"]
