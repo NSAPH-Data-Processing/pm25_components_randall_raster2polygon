@@ -16,12 +16,11 @@ def available_shapefile_year(year, shapefile_years_list: list):
     Given a list of shapefile years,
     return the latest year in the shapefile_years_list that is less than or equal to the given year
     """
-    for shapefile_year in sorted(shapefile_years_list):
-        if year <= shapefile_year:
+    for shapefile_year in sorted(shapefile_years_list, reverse=True):
+        if year >= shapefile_year:
             return shapefile_year
  
-    return max(shapefile_years_list)  # Returns the last element if year is greater than the last element
-
+    return min(shapefile_years_list)  # Returns the last element if year is greater than the last element
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
