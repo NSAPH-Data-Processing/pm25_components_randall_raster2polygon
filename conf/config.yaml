@@ -5,7 +5,7 @@ defaults:
   - satellite_pm25: satellite_pm25
 
 # == aggregation args
-temporal_freq: monthly # annual, monthly to be matched with cfg.satellite_pm25
+temporal_freq: annual # annual, monthly to be matched with cfg.satellite_pm25
 year: 2020
 month: "01" # ignored if annual
 
