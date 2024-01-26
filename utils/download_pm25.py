@@ -20,14 +20,14 @@ def main(cfg):
     """
 
     # == url for download
-    url = cfg.satellite_pm25.url
+    url = cfg.satellite_pm25[cfg.temporal_freq].url
 
     # == setup chrome driver
     # Expand the tilde to the user's home directory
     target_dir = os.path.expanduser(cfg.download_path)
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-    target_file = f"{target_dir}/{cfg.satellite_pm25.zipname}.zip"
+    target_file = f"{target_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}.zip"
 
     # Set up Chrome options for headless mode and automatic downloads
     chrome_options = Options()
