@@ -130,8 +130,5 @@ docker build -t <image_name> .
 
 For multiplatform use
 ```
-docker buildx build --platform linux/amd64,linux/arm64 -t satellite_pm25_raster2polygon .  
+docker buildx build --platform linux/amd64,linux/arm64 -t <username>/<image_name>:<tag> . --push
 ```
-
-docker buildx build --platform linux/amd64,linux/arm64 -t nsaph/satellite_pm25_raster2polygon:v0 . --push
-
