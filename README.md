@@ -41,13 +41,13 @@ mamba activate <env_name>
 
 ## Input and output paths
 
-Determine the configuration file to be used in `cfg.datapaths` and run.
+Run
 
 ```bash
 python utils/create_dir_paths.py 
 ```
 
-For additional instructions, go to `data/README.md`
+For additional options, go to `data/README.md`
 
 ## Download satellite pm25 data
 
