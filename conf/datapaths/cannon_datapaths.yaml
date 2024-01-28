@@ -7,5 +7,6 @@ input:
 
 output:
   satellite_pm25_raster2polygon: 
-    annual: null
-    monthly: null
+    annual: '/n/dominici_lab/lab/data/exposures/exposure/satellite_pm25_raster2polygon/annual/'
+    monthly: '/n/dominici_lab/lab/data/exposures/exposure/satellite_pm25_raster2polygon/monthly/'
+

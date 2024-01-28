@@ -42,7 +42,7 @@ Aaron van Donkelaar, Melanie S. Hammer, Liam Bindle, Michael Brauer, Jeffery R. 
 The configuration structure withing the `/conf` folder allow you to modify the input parameters for the following steps:
 
 * create directory paths: `utils/create_dir_paths.py`
-* download pm25: `utils/download_pm25.py`
+* download pm25: `src/download_pm25.py`
 * download shapefiles: `src/download_shapefile.py`
 * aggregate pm25: `src/aggregate_pm25.py`
 
@@ -73,24 +73,12 @@ mamba env create -f requirements.yml
 mamba activate <env_name>
 ```
 
-## Download satellite pm25 data
-
-#TODO include steps
-
 ## Input and output paths
 
-Determine the configuration file to be used in `cfg.datapaths`. The `input`, `intermediate`, and `output` arguments are used in `utils/create_dir_paths.py` to fix the paths or directories from which a step in the pipeline reads/writes its input/output data inside the corresponding `/data` subfolders.
-
-If `cfg.datapaths` points to `<input_path>` or `<output_path>`, then `utils/create_dir_paths.py` will automatically create a symlink as in the following example:
+Run
 
 ```bash
-export HOME_DIR=$(pwd)
-
-cd $HOME_DIR/data/input/ .
-ln -s <input_path> . 
-
-cd $HOME_DIR/data/output/
-ln -s <output_path> . 
+python utils/create_dir_paths.py 
 ```
 
 ## Pipeline
@@ -101,6 +89,7 @@ You can run the pipeline steps manually or run the snakemake pipeline described 
 
 ```bash
 python src/download_shapefile.py
+python src/download_pm25.py
 python src/aggregate_pm25.py
 ```
 
@@ -108,8 +97,10 @@ python src/aggregate_pm25.py
 or run the pipeline:
 
 ```bash
-snakemake --cores 4 --configfile conf/config.yaml
+snakemake --cores 4 -C polygon_name=county temporal_freq=annual 
 ```
+
+Modify `cores`, `polygon_name` and `temporal_freq` as you find convenient.
 
 ## Dockerized Pipeline
 

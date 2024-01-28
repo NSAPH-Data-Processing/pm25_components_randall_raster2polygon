@@ -8,7 +8,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +25,10 @@ def main(cfg):
 
     # == setup chrome driver
     # Expand the tilde to the user's home directory
-    target_dir = os.path.expanduser(cfg.download_path)
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-    target_file = f"{target_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}.zip"
+    download_dir = "data/input/satellite_pm25"
+    download_zip = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}.zip"
+    src_dir = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}"
+    dest_dir = f"{download_dir}/{cfg.temporal_freq}"
 
     # Set up Chrome options for headless mode and automatic downloads
     chrome_options = Options()
@@ -35,7 +36,7 @@ def main(cfg):
     chrome_options.add_experimental_option(
         "prefs",
         {
-            "download.default_directory": target_dir,
+            "download.default_directory": download_dir,
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "safebrowsing.enabled": True,
@@ -43,7 +44,7 @@ def main(cfg):
     )
 
     # Setting up the Selenium WebDriver for Chrome using webdriver_manager
-    ChromeDriverManager().install()
+    #ChromeDriverManager().install()
     driver = webdriver.Chrome(options=chrome_options)
     logger.info("Chrome driver setup completed.")
 
@@ -67,16 +68,22 @@ def main(cfg):
         logger.info("Downloading...")
 
         # Wait to make sure the file has downloaded
-        while not os.path.exists(target_file):
-            time.sleep(cfg.download_wait_time)
+        while not os.path.exists(download_zip):
+            time.sleep(5) #seconds
         logger.info("Download completed.")
 
         # Unzip all contents in the same folder
-        with zipfile.ZipFile(target_file, "r") as zip_ref:
-            zip_ref.extractall(target_dir)
+        with zipfile.ZipFile(download_zip, "r") as zip_ref:
+            zip_ref.extractall(download_dir)
 
-        # Remove the zip file
-        os.remove(target_file)
+        # Move all files from the src_dir to dest_dir
+        for file in os.listdir(src_dir):
+            shutil.move(os.path.join(src_dir, file), dest_dir)
+
+        # Remove the zip file and the empty folder
+        os.remove(download_zip)
+        os.rmdir(src_dir)
+
         logger.info("Unzipping completed.")
 
     except Exception as e:
