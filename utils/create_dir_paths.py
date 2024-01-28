@@ -22,11 +22,15 @@ def create_subfolders_and_links(datapath, subfolder_dict, base_path="data"):
             if subfolder_link is not None:
                 # Expand the tilde to the user's home directory
                 expanded_path = os.path.expanduser(subfolder_link)
+                # Create symbolic link
+                basedir = os.path.dirname(subfolder_path)
+                os.makedirs(basedir, exist_ok=True)
                 os.symlink(expanded_path, subfolder_path)
                 LOGGER.info(f"Created symlink {subfolder_path} -> {subfolder_link}")
             else:
                 os.makedirs(subfolder_path, exist_ok=True)
                 LOGGER.info(f"Created subfolder {subfolder_path}")
+            
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
