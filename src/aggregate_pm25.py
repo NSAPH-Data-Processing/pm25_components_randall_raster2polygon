@@ -110,15 +110,18 @@ def main(cfg):
 
         # == save output file
         if cfg.temporal_freq == "annual":
+            # ignore month since len(filenames) == 1
             output_filename = f"satellite_pm25_{cfg.polygon_name}_{cfg.year}.parquet"
+
         elif cfg.temporal_freq == "monthly":
+            # use month in filename since len(filenames) = 12
             month = f"{i + 1:02d}"
             output_filename = f"satellite_pm25_{cfg.polygon_name}_{cfg.year}_{month}.parquet"
 
         output_path = f"data/output/satellite_pm25_raster2polygon/{cfg.temporal_freq}/{output_filename}"
         df.to_parquet(output_path)
 
-        # convert to geopandas for image
+        # plot aggregation map using geopandas
         if cfg.plot_output:
             LOGGER.info("Plotting result...")
             gdf = gpd.GeoDataFrame(df, geometry=polygon.geometry.values, crs=polygon.crs)
