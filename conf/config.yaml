@@ -12,10 +12,6 @@ year: 2020
 polygon_name: county # zcta, county to be matched with cfg.shapefiles
 shapefile_year: 2020 #to be matched with cfg.shapefiles
 
-# == satellite pm25 download args
-download_path: "~/Downloads"
-download_wait_time: 5 #seconds
-
 show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
 
