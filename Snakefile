@@ -3,6 +3,8 @@ from src.aggregate_pm25 import available_shapefile_year
 
 conda: "requirements.yaml"
 
+configfile: "conf/config.yaml"
+
 defaults_dict = {key: value for d in config['defaults'] if isinstance(d, dict) for key, value in d.items()}
 
 polygon_name=config["polygon_name"]
@@ -48,8 +50,11 @@ rule aggregate_pm25:
             f"data/output/satellite_pm25_raster2polygon/{temporal_freq}/satellite_pm25_{polygon_name}_" + 
             ("{year}.parquet" if temporal_freq == 'annual' else "{year}_{month}.parquet")
         )
+    log:
+        f"logs/satellite_pm25_{polygon_name}_" + ("{year}.log" if temporal_freq == 'annual' else "{year}_{month}.log")
     shell:
         (
-            f"python src/aggregate_pm25.py polygon_name={polygon_name} temporal_freq={temporal_freq} " + 
-            ("year={wildcards.year}" if temporal_freq == 'annual' else "year={wildcards.year} month={wildcards.month}")
+            f"PYTHONPATH=. python src/aggregate_pm25.py polygon_name={polygon_name} temporal_freq={temporal_freq} " + 
+            ("year={wildcards.year}" if temporal_freq == 'annual' else "year={wildcards.year} month={wildcards.month}") +
+            " &> {log}"
         )
