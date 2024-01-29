@@ -7,6 +7,9 @@
 ## hydra ----
 logs/
 
+## slurm ----
+**/slurm*
+
 ## Python ----
 
 # Byte-compiled / optimized / DLL files
