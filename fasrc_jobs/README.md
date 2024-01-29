@@ -1,0 +1,1 @@
+Modify the sbatch jobs. These sbatch jobs are specific for FASRC configuration as of Jan28, 2024 and are only examples intended to be adapted for other HPC configurations.
