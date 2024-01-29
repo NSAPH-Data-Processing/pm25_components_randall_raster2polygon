@@ -116,6 +116,7 @@ def main(cfg):
         elif cfg.temporal_freq == "monthly":
             # use month in filename since len(filenames) = 12
             month = f"{i + 1:02d}"
+            df["month"] = month
             output_filename = f"satellite_pm25_{cfg.polygon_name}_{cfg.year}_{month}.parquet"
 
         output_path = f"data/output/satellite_pm25_raster2polygon/{cfg.temporal_freq}/{output_filename}"
