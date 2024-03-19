@@ -90,6 +90,7 @@ You can run the pipeline steps manually or run the snakemake pipeline described 
 ```bash
 python src/download_shapefile.py
 python src/download_pm25.py
+export PYTHONPATH=.
 python src/aggregate_pm25.py
 ```
 
