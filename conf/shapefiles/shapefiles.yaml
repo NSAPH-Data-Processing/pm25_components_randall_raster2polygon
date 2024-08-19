@@ -1,5 +1,16 @@
 # cfg.shapefile_year and cfg.polygon_name are used to match the shapefile to dowload
 
+census_tract:
+  2020:
+    url: https://www2.census.gov/geo/tiger/GENZ2020/shp/cb_2020_us_tract_500k.zip
+    idvar: GEOID
+  2021:
+    url: https://www2.census.gov/geo/tiger/GENZ2021/shp/cb_2021_us_tract_500k.zip
+    idvar: GEOID
+  2022:
+    url: https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_tract_500k.zip
+    idvar: GEOID
+
 county: # County shapefiles (cartographic boundaries) https://www.census.gov/programs-surveys/geography/guidance/tiger-data-products-guide.html
   2013:
     url: https://www2.census.gov/geo/tiger/GENZ2013/cb_2013_us_county_500k.zip # readme https://www2.census.gov/geo/tiger/GENZ2013/2013_file_name_def.pdf
