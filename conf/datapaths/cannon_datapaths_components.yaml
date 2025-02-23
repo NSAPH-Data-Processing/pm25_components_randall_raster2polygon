@@ -1,0 +1,11 @@
+input:
+  satellite_components: 
+    annual: /n/netscratch/dominici_lab/Lab/satellite_components/annual/
+    monthly: /n/netscratch/dominici_lab/Lab/satellite_components/monthly/
+  shapefiles: null
+
+output:
+  satellite_components_processed: 
+    annual: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
+    monthly: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
+
