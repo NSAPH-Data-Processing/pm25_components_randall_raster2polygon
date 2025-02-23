@@ -23,14 +23,15 @@ def main(cfg):
     """
 
     # == url for download and save dirs
+    component = cfg.component
     url_cfg = cfg.satellite_component[cfg.temporal_freq]
-    url = url_cfg.url
+    url = url_cfg.url[component]
 
-    download_dir = f"data/input/satellite_components/{cfg.temporal_freq}/"
+    download_dir = f"data/input/satellite_components/{cfg.temporal_freq}/{component}"
     download_dir = os.path.abspath(download_dir)  # make absolute path
     download_zip = f"{download_dir}/{url_cfg.zipname}.zip"
     src_dir = f"{download_dir}/{url_cfg.zipname}"
-    dest_dir = f"{download_dir}/{cfg.satellite_component.component_name}"
+    dest_dir = f"{download_dir}/"
 
     # == setup chrome driver
     # Set up Chrome options for headless mode and automatic downloads
