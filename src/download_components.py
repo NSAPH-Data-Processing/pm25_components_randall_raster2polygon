@@ -8,10 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+
 # from webdriver_manager.chrome import ChromeDriverManager
 import shutil
 
 logger = logging.getLogger(__name__)
+
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
@@ -20,20 +22,17 @@ def main(cfg):
     https://sites.wustl.edu/acag/datasets/surface-pm2-5/
     """
 
-    # == url for download
+    # == url for download and save dirs
     url_cfg = cfg.satellite_component[cfg.temporal_freq]
     url = url_cfg.url
 
-    # == setup chrome driver
-    # Expand the tilde to the user's home directory
     download_dir = f"data/input/satellite_components/{cfg.temporal_freq}/"
-    # make absolute path
-    download_dir = os.path.abspath(download_dir)
-
+    download_dir = os.path.abspath(download_dir)  # make absolute path
     download_zip = f"{download_dir}/{url_cfg.zipname}.zip"
     src_dir = f"{download_dir}/{url_cfg.zipname}"
     dest_dir = f"{download_dir}/{cfg.satellite_component.component_name}"
 
+    # == setup chrome driver
     # Set up Chrome options for headless mode and automatic downloads
     chrome_options = Options()
     chrome_options.add_argument("--headless=new")
@@ -74,7 +73,7 @@ def main(cfg):
 
         # Wait to make sure the file has downloaded
         while not os.path.exists(download_zip):
-            time.sleep(5) #seconds
+            time.sleep(5)  # seconds
         logger.info("Download completed.")
 
         # Unzip all contents in the same folder
@@ -104,6 +103,7 @@ def main(cfg):
         # Close the browser after completion or in case of an error
         driver.quit()
         logger.info("Download completed.")
+
 
 if __name__ == "__main__":
     main()

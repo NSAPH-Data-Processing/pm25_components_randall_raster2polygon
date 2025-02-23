@@ -10,11 +10,14 @@ temporal_freq: annual # annual, monthly to be matched with cfg.satellite_pm25
 year: 2020
 
 # == shapefile download args
-polygon_name: county # zcta, county to be matched with cfg.shapefiles
+polygon_name: county # zcta, count to be matched with cfg.shapefiles
 shapefile_year: 2020 #to be matched with cfg.shapefiles
 
 show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
+
+# == resize args for resizing netcdfs prior to the aggregation step
+# target_resolution: 0.1
 
 hydra:
   run:

@@ -5,7 +5,10 @@ input:
   shapefiles: null
 
 output:
-  satellite_components_processed: 
+  v5na04: 
     annual: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
     monthly: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
 
+# dataloader:
+#   annual: null
+#   monthly: null
