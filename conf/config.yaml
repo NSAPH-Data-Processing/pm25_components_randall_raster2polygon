@@ -2,7 +2,8 @@ defaults:
   - _self_
   - datapaths: datapaths
   - shapefiles: shapefiles
-  - satellite_pm25: satellite_pm25
+  - satellite_pm25: us_pm25
+  - satellite_component: no3
 
 # == aggregation args
 temporal_freq: annual # annual, monthly to be matched with cfg.satellite_pm25
