@@ -1,0 +1,11 @@
+temporal_freq: monthly
+polygon_name: county
+components:
+  - no3
+  - pm25
+  - so4
+  - ss
+  - nh4
+  - dust
+  - bc
+  - om

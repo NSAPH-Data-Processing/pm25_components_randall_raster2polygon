@@ -3,7 +3,7 @@ defaults:
   - datapaths: datapaths
   - shapefiles: shapefiles
   - satellite_pm25: us_pm25
-  - satellite_component: no3
+  - satellite_component: us_components
 
 # == aggregation args
 temporal_freq: annual # annual, monthly to be matched with cfg.satellite_pm25
@@ -16,8 +16,26 @@ shapefile_year: 2020 #to be matched with cfg.shapefiles
 show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
 
-# == resize args for resizing netcdfs prior to the aggregation step
-# target_resolution: 0.1
+# == component for the satellite_component pipeline
+component: no3   # used for the download and resize scripts
+
+
+# == bounding box and resolution for the data loaders  TODO
+# bounding_box:
+#   min_lat: 20
+#   max_lat: 52
+#   min_lon: -135
+#   max_lon: -60
+# resolution: 0.1  # degrees
+# dataloader_components: 
+#   - no3
+#   - pm25
+#   - so4
+#   - ss
+#   - nh4
+#   - dust
+#   - bc
+#   - om
 
 hydra:
   run:

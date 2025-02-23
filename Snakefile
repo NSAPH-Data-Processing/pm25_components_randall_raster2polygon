@@ -1,21 +1,32 @@
 import yaml
 from src.aggregate_pm25 import available_shapefile_year
+from hydra import compose, initialize
 
 conda: "requirements.yaml"
-configfile: "conf/config.yaml"
+configfile: "conf/snakemake.yaml"
 
-defaults_dict = {key: value for d in config['defaults'] if isinstance(d, dict) for key, value in d.items()}
+# defaults_dict = {key: value for d in config['defaults'] if isinstance(d, dict) for key, value in d.items()}
 
-polygon_name=config["polygon_name"]
+# polygon_name=config["polygon_name"]
+# temporal_freq = config['temporal_freq']
+
+# shapefiles_cfg = yaml.safe_load(open(f"conf/shapefiles/shapefiles.yaml", 'r'))
+# satellite_pm25_cfg = yaml.safe_load(open(f"conf/satellite_pm25/us_pm25.yaml", 'r'))
+
+# shapefile_years_list = list(shapefiles_cfg[polygon_name].keys())
+
 temporal_freq = config['temporal_freq']
+polygon_name = config['polygon_name']
+components = config['components']
 
-shapefiles_cfg = yaml.safe_load(open(f"conf/shapefiles/shapefiles.yaml", 'r'))
-satellite_pm25_cfg = yaml.safe_load(open(f"conf/satellite_pm25/satellite_pm25.yaml", 'r'))
+with initialize(version_base=None, config_path="conf"):
+    hydra_cfg = compose(config_name="config", overrides=[f"temporal_freq={temporal_freq}", f"polygon_name={polygon_name}"])
 
-shapefile_years_list = list(shapefiles_cfg[polygon_name].keys())
+satellite_pm25_cfg = hydra_cfg.satellite_pm25
+shapefiles_cfg = hydra_cfg.shapefiles
 
-years_list = list(range(1998, 2022 + 1))
 months_list = "01" if temporal_freq == 'annual' else [str(i).zfill(2) for i in range(1, 12 + 1)]
+years_list = list(range(1998, 2022 + 1))
 
 # == Define rules ==
 rule all:
@@ -44,9 +55,29 @@ rule download_satellite_pm25:
     shell:
         f"python src/download_pm25.py temporal_freq={temporal_freq} " + " &> {log}"
 
+
+rule download_all_components:
+    input:
+        expand(
+            f"data/input/satellite_components/{temporal_freq}/{{component}}/",
+            component=components
+        )
+
+
+rule download_component:
+    output:
+        directory(f"data/input/satellite_components/{config['temporal_freq']}/{{component}}/")
+    log:    
+        "logs/download_components_{component}.log"
+    shell:
+        f"python src/download_components.py temporal_freq={config['temporal_freq']}"
+        " component={wildcards.component} &> {log}"
+
+
 def get_shapefile_input(wildcards):
     shapefile_year = available_shapefile_year(int(wildcards.year), shapefile_years_list)
     return f"data/input/shapefiles/shapefile_{polygon_name}_{shapefile_year}/shapefile.shp"
+
 
 rule aggregate_pm25:
     input:
