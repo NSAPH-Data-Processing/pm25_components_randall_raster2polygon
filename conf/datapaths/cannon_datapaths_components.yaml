@@ -1,14 +1,12 @@
 input:
-  satellite_components: 
-    annual: /n/netscratch/dominici_lab/Lab/satellite_components/annual/
-    monthly: /n/netscratch/dominici_lab/Lab/satellite_components/monthly/
+  pm25_components__washu__raw: 
+    annual: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/annual/
+    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/monthly/
   shapefiles: null
+  
+  pm25_components__washu__grid_0_1__dataloader:
+    annual: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/annual/
+    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/monthly/
 
-output:
-  satellite_components_processed: 
-    annual: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
-    monthly: /n/netscratch/dominici_lab/Lab/satellite_components_processed/annual/
 
-dataloader:
-  annual: null
-  monthly: null
+output: null
