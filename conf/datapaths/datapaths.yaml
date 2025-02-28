@@ -7,5 +7,7 @@ input:
 
 output:
   satellite_pm25_raster2polygon: 
-    annual: null
-    monthly: null
+    zcta_annual: null
+    zcta_monthly: null
+    county_annual: null
+    county_monthly: null
