@@ -1,16 +1,26 @@
 import yaml
 from src.aggregate_pm25 import available_shapefile_year
+from hydra import compose, initialize
 
 conda: "requirements.yaml"
-configfile: "conf/config.yaml"
+configfile: "conf/snakemake.yaml"
 
-defaults_dict = {key: value for d in config['defaults'] if isinstance(d, dict) for key, value in d.items()}
+# defaults_dict = {key: value for d in config['defaults'] if isinstance(d, dict) for key, value in d.items()}
+
+# polygon_name=config["polygon_name"]
+# temporal_freq = config['temporal_freq']
+
+# shapefiles_cfg = yaml.safe_load(open(f"conf/shapefiles/shapefiles.yaml", 'r'))
+# satellite_pm25_cfg = yaml.safe_load(open(f"conf/satellite_pm25/us_pm25.yaml", 'r'))
 
 polygon_name=config["polygon_name"]
 temporal_freq = config['temporal_freq']
 
-shapefiles_cfg = yaml.safe_load(open(f"conf/shapefiles/shapefiles.yaml", 'r'))
-satellite_pm25_cfg = yaml.safe_load(open(f"conf/satellite_pm25/satellite_pm25.yaml", 'r'))
+with initialize(version_base=None, config_path="conf"):
+    hydra_cfg = compose(config_name="config", overrides=[f"temporal_freq={temporal_freq}", f"polygon_name={polygon_name}"])
+
+satellite_pm25_cfg = hydra_cfg.satellite_pm25
+shapefiles_cfg = hydra_cfg.shapefiles
 
 shapefile_years_list = list(shapefiles_cfg[polygon_name].keys())
 
@@ -26,6 +36,7 @@ rule all:
             month=months_list
         )
 
+# remove and use symlink to the us census geoboundaries 
 rule download_shapefiles:
     output:
         f"data/input/shapefiles/shapefile_{polygon_name}_" + "{shapefile_year}/shapefile.shp" 

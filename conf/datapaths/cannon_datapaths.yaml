@@ -1,8 +1,8 @@
 # if files are stored within the local copy of the repository, then use null:
 input:
   satellite_pm25: 
-    annual: /n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/annual
-    monthly: /n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/monthly
+    annual: /n/netscratch/dominici_lab/Lab/pm25_washu_raster2polygon/raw/annual #/n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/annual
+    monthly: /n/netscratch/dominici_lab/Lab/pm25_washu_raster2polygon/raw/monthly #/n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/monthly
   shapefiles: null
 
 output:
