@@ -1,12 +1,12 @@
 # if files are stored within the local copy of the repository, then use null:
 input:
-  satellite_pm25: 
+  pm25__washu__raw: 
     annual: null
     monthly: null
   shapefiles: null
 
 output:
-  satellite_pm25_raster2polygon: 
+  pm25__washu: 
     zcta_annual: null
     zcta_monthly: null
     county_annual: null

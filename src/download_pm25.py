@@ -25,7 +25,8 @@ def main(cfg):
 
     # == setup chrome driver
     # Expand the tilde to the user's home directory
-    download_dir = "data/input/satellite_pm25/"
+    download_dir = f"data/input/pm25__washu__raw/{cfg.temporal_freq}"
+    download_dir = os.path.abspath(download_dir)
     download_zip = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}.zip"
     src_dir = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}"
     dest_dir = f"{download_dir}/{cfg.temporal_freq}"
@@ -37,6 +38,7 @@ def main(cfg):
         "prefs",
         {
             "download.default_directory": download_dir,
+            "savefile.default_directory": download_dir,
             "download.prompt_for_download": False,
             "download.directory_upgrade": True,
             "safebrowsing.enabled": True,
@@ -77,12 +79,18 @@ def main(cfg):
             zip_ref.extractall(download_dir)
 
         # Move all files from the src_dir to dest_dir
+        os.makedirs(dest_dir, exist_ok=True)
         for file in os.listdir(src_dir):
             shutil.move(os.path.join(src_dir, file), dest_dir)
 
         # Remove the zip file and the empty folder
         os.remove(download_zip)
         os.rmdir(src_dir)
+
+        # Remove anyfile starging with Unconfirmed (this might be a Chrome bug/artifact)
+        for file in os.listdir(download_dir):
+            if file.startswith("Unconfirmed"):
+                os.remove(os.path.join(download_dir, file))
 
         logger.info("Unzipping completed.")
 

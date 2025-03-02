@@ -13,8 +13,8 @@ configfile: "conf/snakemake.yaml"
 # shapefiles_cfg = yaml.safe_load(open(f"conf/shapefiles/shapefiles.yaml", 'r'))
 # satellite_pm25_cfg = yaml.safe_load(open(f"conf/satellite_pm25/us_pm25.yaml", 'r'))
 
-polygon_name=config["polygon_name"]
 temporal_freq = config['temporal_freq']
+polygon_name = config['polygon_name']
 
 with initialize(version_base=None, config_path="conf"):
     hydra_cfg = compose(config_name="config", overrides=[f"temporal_freq={temporal_freq}", f"polygon_name={polygon_name}"])
@@ -24,13 +24,13 @@ shapefiles_cfg = hydra_cfg.shapefiles
 
 shapefile_years_list = list(shapefiles_cfg[polygon_name].keys())
 
-years_list = list(range(1998, 2022 + 1))
 months_list = "01" if temporal_freq == 'annual' else [str(i).zfill(2) for i in range(1, 12 + 1)]
+years_list = list(range(1998, 2022 + 1))
 
 # == Define rules ==
 rule all:
     input:
-        expand(f"data/output/satellite_pm25_raster2polygon/{temporal_freq}/satellite_pm25_{polygon_name}_" + 
+        expand(f"data/output/pm25__washu/{polygon_name}_{temporal_freq}_" + 
                 ("{year}.parquet" if temporal_freq == 'annual' else "{year}_{month}.parquet"), 
             year=years_list,
             month=months_list
@@ -63,14 +63,14 @@ rule aggregate_pm25:
     input:
         get_shapefile_input,
         expand(
-            f"data/input/satellite_pm25/{temporal_freq}/{satellite_pm25_cfg[temporal_freq]['file_prefix']}." + 
+            f"data/input/pm25__washu__raw/{temporal_freq}/{satellite_pm25_cfg[temporal_freq]['file_prefix']}." + 
             ("{{year}}01-{{year}}12.nc" if temporal_freq == 'annual' else "{{year}}{month}-{{year}}{month}.nc"), 
             month=months_list
         )
 
     output:
         expand(
-            f"data/output/satellite_pm25_raster2polygon/{temporal_freq}/satellite_pm25_{polygon_name}_" + 
+            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}_" + 
             ("{{year}}.parquet" if temporal_freq == 'annual' else "{{year}}_{month}.parquet"), 
             month=months_list  # we only want to expand months_list and keep year as wildcard
         )
