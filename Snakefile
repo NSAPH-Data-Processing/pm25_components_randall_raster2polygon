@@ -30,7 +30,8 @@ years_list = list(range(1998, 2022 + 1))
 # == Define rules ==
 rule all:
     input:
-        expand(f"data/output/pm25__washu/{polygon_name}_{temporal_freq}_" + 
+        expand(
+            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}_" +  
                 ("{year}.parquet" if temporal_freq == 'annual' else "{year}_{month}.parquet"), 
             year=years_list,
             month=months_list
@@ -46,7 +47,7 @@ rule download_shapefiles:
 rule download_satellite_pm25:
     output:
         expand(
-            f"data/input/satellite_pm25/{temporal_freq}/{satellite_pm25_cfg[temporal_freq]['file_prefix']}." + 
+            f"data/input/pm25__washu__raw/{temporal_freq}/{satellite_pm25_cfg[temporal_freq]['file_prefix']}." + 
             ("{year}01-{year}12.nc" if temporal_freq == 'annual' else "{year}{month}-{year}{month}.nc"), 
             year=years_list,
             month=months_list)
@@ -70,7 +71,7 @@ rule aggregate_pm25:
 
     output:
         expand(
-            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}_" + 
+            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}_" + 
             ("{{year}}.parquet" if temporal_freq == 'annual' else "{{year}}_{month}.parquet"), 
             month=months_list  # we only want to expand months_list and keep year as wildcard
         )

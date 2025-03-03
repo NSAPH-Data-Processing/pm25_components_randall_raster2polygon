@@ -62,7 +62,7 @@ def main(cfg):
     # load the first file to obtain the affine transform/boundaries
     LOGGER.info("Mapping polygons to raster cells.")
 
-    ds = xarray.open_dataset(f"data/input/satellite_pm25/{cfg.temporal_freq}/{filenames[0]}")
+    ds = xarray.open_dataset(f"data/input/pm25__washu__raw/{cfg.temporal_freq}/{filenames[0]}")
     layer = getattr(ds, cfg.satellite_pm25.layer)
 
     # obtain affine transform/boundaries
@@ -90,7 +90,7 @@ def main(cfg):
 
         if i > 0:
             # reload the file only if it is different from the first one
-            ds = xarray.open_dataset(f"data/input/satellite_pm25/{cfg.temporal_freq}/{filename}")
+            ds = xarray.open_dataset(f"data/input/pm25__washu__raw/{cfg.temporal_freq}/{filename}")
             layer = getattr(ds, cfg.satellite_pm25.layer)
 
         # === obtain stats quickly using precomputed mapping
@@ -111,15 +111,15 @@ def main(cfg):
         # == save output file
         if cfg.temporal_freq == "annual":
             # ignore month since len(filenames) == 1
-            output_filename = f"satellite_pm25_{cfg.polygon_name}_{cfg.year}.parquet"
+            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.year}.parquet"
 
         elif cfg.temporal_freq == "monthly":
             # use month in filename since len(filenames) = 12
             month = f"{i + 1:02d}"
             df["month"] = month
-            output_filename = f"satellite_pm25_{cfg.polygon_name}_{cfg.year}_{month}.parquet"
+            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.year}_{month}.parquet"
 
-        output_path = f"data/output/satellite_pm25_raster2polygon/{cfg.temporal_freq}/{output_filename}"
+        output_path = f"data/output/pm25__washu/{cfg.polygon_name}_{cfg.temporal_freq}/{output_filename}"
         df.to_parquet(output_path)
 
         # plot aggregation map using geopandas

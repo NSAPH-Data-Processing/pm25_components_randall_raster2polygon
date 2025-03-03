@@ -25,7 +25,7 @@ def main(cfg):
 
     # == setup chrome driver
     # Expand the tilde to the user's home directory
-    download_dir = f"data/input/pm25__washu__raw/{cfg.temporal_freq}"
+    download_dir = f"data/input/pm25__washu__raw/"
     download_dir = os.path.abspath(download_dir)
     download_zip = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}.zip"
     src_dir = f"{download_dir}/{cfg.satellite_pm25[cfg.temporal_freq].zipname}"
