@@ -111,13 +111,13 @@ def main(cfg):
         # == save output file
         if cfg.temporal_freq == "annual":
             # ignore month since len(filenames) == 1
-            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.year}.parquet"
+            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.temporal_freq}__{cfg.year}.parquet"
 
         elif cfg.temporal_freq == "monthly":
             # use month in filename since len(filenames) = 12
             month = f"{i + 1:02d}"
             df["month"] = month
-            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.year}_{month}.parquet"
+            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.temporal_freq}__{cfg.year}_{month}.parquet"
 
         output_path = f"data/output/pm25__washu/{cfg.polygon_name}_{cfg.temporal_freq}/{output_filename}"
         df.to_parquet(output_path)

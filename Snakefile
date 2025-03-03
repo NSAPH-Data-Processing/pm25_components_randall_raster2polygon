@@ -31,7 +31,7 @@ years_list = list(range(1998, 2022 + 1))
 rule all:
     input:
         expand(
-            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}_" +  
+            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}__" +  
                 ("{year}.parquet" if temporal_freq == 'annual' else "{year}_{month}.parquet"), 
             year=years_list,
             month=months_list
@@ -71,7 +71,7 @@ rule aggregate_pm25:
 
     output:
         expand(
-            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}_" + 
+            f"data/output/pm25__washu/{polygon_name}_{temporal_freq}/pm25__washu__{polygon_name}_{temporal_freq}__" + 
             ("{{year}}.parquet" if temporal_freq == 'annual' else "{{year}}_{month}.parquet"), 
             month=months_list  # we only want to expand months_list and keep year as wildcard
         )
