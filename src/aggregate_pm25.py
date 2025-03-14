@@ -44,7 +44,7 @@ def main(cfg):
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
     # == filenames to be aggregated
-    if cfg.temporal_freq == "annual":
+    if cfg.temporal_freq == "yearly":
         filenames = [
             f"{cfg.satellite_pm25[cfg.temporal_freq].file_prefix}.{cfg.year}01-{cfg.year}12.nc"
         ]
@@ -109,7 +109,7 @@ def main(cfg):
         )
 
         # == save output file
-        if cfg.temporal_freq == "annual":
+        if cfg.temporal_freq == "yearly":
             # ignore month since len(filenames) == 1
             output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.temporal_freq}__{cfg.year}.parquet"
 

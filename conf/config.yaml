@@ -5,11 +5,11 @@ defaults:
   - satellite_pm25: us_pm25
 
 # == aggregation args
-temporal_freq: annual # annual, monthly to be matched with cfg.satellite_pm25
+temporal_freq: yearly # yearly, monthly to be matched with cfg.satellite_pm25
 year: 2020
 
 # == shapefile download args
-polygon_name: county # zcta, county to be matched with cfg.shapefiles
+polygon_name: zcta # zcta, county to be matched with cfg.shapefiles
 shapefile_year: 2020 #to be matched with cfg.shapefiles
 
 show_progress: false

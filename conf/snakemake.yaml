@@ -1,2 +1,2 @@
-temporal_freq: annual
-polygon_name: county
+temporal_freq: yearly
+polygon_name: zcta
