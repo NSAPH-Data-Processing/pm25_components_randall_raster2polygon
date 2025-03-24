@@ -1,12 +1,13 @@
 # if files are stored within the local copy of the repository, then use null:
 input:
-  satellite_pm25: 
-    annual: null
-    monthly: null
+  pm25__washu__raw: 
+    yearly: /n/netscratch/dominici_lab/Lab/pm25__washu__raw/yearly/ #/n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/annual
+    monthly: /n/netscratch/dominici_lab/Lab/pm25__washu__raw/monthly/ #/n/dominici_lab/lab/lego/environmnetal/pm25__washu/raw/monthly
   shapefiles: null
 
 output:
-  satellite_pm25_raster2polygon: 
-    annual: '/n/dominici_lab/lab/data/exposures/exposure/satellite_pm25_raster2polygon/annual/'
-    monthly: '/n/dominici_lab/lab/data/exposures/exposure/satellite_pm25_raster2polygon/monthly/'
-
+  pm25__washu: 
+    zcta_yearly: /n/dominici_lab/lab/lego/environmental/pm25__washu/zcta_yearly
+    zcta_monthly: /n/dominici_lab/lab/lego/environmental/pm25__washu/zcta_monthly
+    county_yearly: /n/dominici_lab/lab/lego/environmental/pm25__washu/county_yearly
+    county_monthly: /n/dominici_lab/lab/lego/environmental/pm25__washu/county_monthly

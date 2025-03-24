@@ -1,5 +1,5 @@
-temporal_freq: monthly
-polygon_name: county
+temporal_freq: yearly
+polygon_name: zcta
 components:
   - no3
   - pm25
@@ -9,3 +9,4 @@ components:
   - dust
   - bc
   - om
+
