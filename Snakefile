@@ -15,6 +15,7 @@ configfile: "conf/snakemake.yaml"
 
 temporal_freq = config['temporal_freq']
 polygon_name = config['polygon_name']
+components = config['components']
 
 with initialize(version_base=None, config_path="conf"):
     hydra_cfg = compose(config_name="config", overrides=[f"temporal_freq={temporal_freq}", f"polygon_name={polygon_name}"])

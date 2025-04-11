@@ -1,4 +1,4 @@
-temporal_freq: yearly
+temporal_freq: monthly
 polygon_name: zcta
 components:
   - no3

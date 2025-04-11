@@ -7,7 +7,7 @@ defaults:
 
 
 # == aggregation args
-temporal_freq: yearly # yearly, monthly to be matched with cfg.satellite_pm25
+temporal_freq: monthly # yearly, monthly to be matched with cfg.satellite_pm25
 year: 2020
 
 # == shapefile download args
