@@ -1,6 +1,14 @@
-temporal_freq: monthly
-polygon_name: zcta
-components:
+# this config defines the parameters for aggregation during the pipeline's download and aggregation steps
+
+temporal_freq: # the aggregation frequency
+  - monthly 
+  - yearly
+polygon_name: # the geographical shape to aggregate the data into
+  - zcta
+  - county
+shapefile_year: # the year of the shapefile to be downloaded
+  - 2020 # this is the year of the shapefile to be downloaded, it is used in the pipeline to download the shapefiles
+components: # the component data to be processed
   - no3
   - pm25
   - so4
@@ -9,4 +17,5 @@ components:
   - dust
   - bc
   - om
+  - om_h20 # this comes from the same om file, but the file has 2 layers, so we repeat the step in the pipeline
 

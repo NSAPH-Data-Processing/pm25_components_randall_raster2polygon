@@ -1,4 +1,16 @@
 yearly:
+  url:
+    no3: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257360543949
+    pm25: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/251941348660
+    so4: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257343870094
+    ss: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257401211681
+    nh4: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257351091647
+    dust: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257381362915
+    bc: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257370467169
+    om: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257369733114
+    om_h2o: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257369733114
+
+  zipname: Annual
   
 
 monthly:
@@ -11,16 +23,44 @@ monthly:
     dust: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257380016906
     bc: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257377372368
     om: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257368204252
+    om_h2o: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/257368204252
 
   zipname: Monthly
 
-  # file_prefix: "V5GL04.HybridPM25c_0p10.NorthAmerica"
+  file_prefix: "V5GL04.HybridPM25c_0p10.NorthAmerica"
   #file name convention is V5GL04.HybridPM25.NorthAmerica.yyyymm-yyyymm.nc
   # e.g. V5GL04.HybridPM25.NorthAmerica.201801-201812.nc is the file for 2018
   # "V5GL04.HybridPM25.NorthAmerica" #lower resolution
   # "V5GL04.HybridPM25c_0p10.NorthAmerica" #higher resolution
 
-layer: ??? # changes on the basis of the component, but each download has only 1 layer
+#layer: ??? # changes on the basis of the component, but each download has only 1 layer
 latitude_layer: "lat"
 longitude_layer: "lon"
-component: no3
+component: 
+  no3: 
+    file_prefix: "V5NA04.02.HybridNO3-NO3.NorthAmerica"
+    layer: "GWRNO3"
+  pm25: 
+    file_prefix: "V5GL04.HybridPM25c_0p10.NorthAmerica"
+    layer: "GWRPM25"
+  so4: 
+    file_prefix: "V5NA04.02.HybridSO4-SO4.NorthAmerica"
+    layer: "GWRSO4"
+  ss: 
+    file_prefix: "V5NA04.02.HybridSS-SS.NorthAmerica"
+    layer: "GWRSS"
+  nh4: 
+    file_prefix: "V5NA04.02.HybridNH4-NH4.NorthAmerica"
+    layer: "GWRNH4"
+  dust:
+    file_prefix: "V5NA04.02.HybridDUST-DUST.NorthAmerica"
+    layer: "GWRDUST"
+  bc:
+    file_prefix: "V5NA04.02.HybridBC-BC.NorthAmerica"
+    layer: "GWRBC"
+  om:
+    file_prefix: "V5NA04.02.HybridOM-OM.NorthAmerica"
+    layer: "GWROM"
+  om_h20:
+    file_prefix: "V5NA04.02.HybridOM-OM.NorthAmerica"
+    layer: "GWROM_H2O"

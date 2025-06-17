@@ -1,43 +1,36 @@
+# top level config file for the project
 defaults:
   - _self_
   - datapaths: cannon_datapaths
   - shapefiles: shapefiles
-  - satellite_pm25: us_pm25
+  - satellite_pm25: us_pm25 # obsolete
   - satellite_component: us_components
 
 
 # == aggregation args
-temporal_freq: monthly # yearly, monthly to be matched with cfg.satellite_pm25
-year: 2020
+# this section defines how we aggregate the data
+# temporal_freq: monthly # yearly, monthly to be matched with cfg.satellite_pm25
+# year: 2022
 
 # == shapefile download args
-
-polygon_name: zcta # zcta, county to be matched with cfg.shapefiles
-shapefile_year: 2020 #to be matched with cfg.shapefiles
+# this section is used to download the shapefiles for the polygons into which we aggregate all the data
+polygon_name: ["zcta", "county"] # zcta, county to be matched with cfg.shapefiles
+shapefile_year: [2020] #to be matched with cfg.shapefiles
 
 show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
 
 # == component for the satellite_component pipeline
-component: no3   # used for the download and resize scripts
-
-
-# == bounding box and resolution for the data loaders  TODO
-# bounding_box:
-#   min_lat: 20
-#   max_lat: 52
-#   min_lon: -135
-#   max_lon: -60
-# resolution: 0.1  # degrees
-# dataloader_components: 
-#   - no3
-#   - pm25
-#   - so4
-#   - ss
-#   - nh4
-#   - dust
-#   - bc
-#   - om
+component:
+  - no3   
+  - pm25
+  - so4
+  - ss
+  - nh4
+  - dust
+  - bc
+  - om
+  - om_h20 # this is actually the same as om, but the file for om has 2 layers in it, so we just repeat the step in the pipeline
 
 hydra:
   run:

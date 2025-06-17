@@ -24,11 +24,11 @@ def main(cfg):
 
     # == url for download and save dirs
     component = cfg.component
-    url_cfg = cfg.satellite_component[cfg.temporal_freq]
+    url_cfg = cfg.satellite_component[cfg['temporal_freq']]
     url = url_cfg.url[component]
 
     download_dir = (
-        f"data/input/pm25_components__washu__raw/{cfg.temporal_freq}/{component}"
+        f"data/input/satellite_components/{component}/{cfg.temporal_freq}/"
     )
     download_dir = os.path.abspath(download_dir)  # make absolute path
     download_zip = f"{download_dir}/{url_cfg.zipname}.zip"

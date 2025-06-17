@@ -5,6 +5,9 @@ import geopandas as gpd
 import numpy as np
 import hydra
 import logging  
+import pathlib
+import os
+import re
 import matplotlib.pyplot as plt
 
 from hydra.core.hydra_config import HydraConfig
@@ -14,6 +17,13 @@ from utils.faster_zonal_stats import polygon_to_raster_cells
 # configure logger to print at info level
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+
+# mapping for month abbreviations to numbers
+month_map = {
+    "JAN": "01", "FEB": "02", "MAR": "03", "APR": "04",
+    "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08",
+    "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12"
+}
 
 
 def available_shapefile_year(year, shapefile_years_list: list):
@@ -30,7 +40,7 @@ def available_shapefile_year(year, shapefile_years_list: list):
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     # get aggregation defaults
-    LOGGER.info(f"Running for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year}")
+    LOGGER.info(f"Running for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.component}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
     # == load shapefile
@@ -43,38 +53,27 @@ def main(cfg):
     polygon = gpd.read_file(shape_path)
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
-    #TODO for each component
-    
+    # from omegaconf import OmegaConf
+    # print(OmegaConf.to_yaml(cfg))
+    # import sys; sys.exit(0)  # exit here to avoid running the rest of the code
 
     # == filenames to be aggregated
-    if cfg.temporal_freq == "yearly":
-        filenames = [
-            f"{cfg.satellite_pm25[cfg.temporal_freq].file_prefix}.{cfg.year}01-{cfg.year}12.nc"
-        ]
-    elif cfg.temporal_freq == "monthly": 
-        # Note; will use the january file for obtaining the mapping from geometries to raster cells
-        # the aggregation for the all the months will be done using the same mapping later
-        filenames = []
-        for m in range(1, 13):
-            filenames.append(f"{cfg.satellite_pm25[cfg.temporal_freq].file_prefix}.{cfg.year}{m:02d}-{cfg.year}{m:02d}.nc")
-    else:
-        raise ValueError(f"temporal_freq {cfg.temporal_freq} not supported")
+    filenames = pathlib.Path(f"data/input/satellite_components/{cfg.component}/{cfg.temporal_freq}/").glob("*.nc")
+    filenames = [str(f) for f in filenames if f.is_file()]
     
     # == compute mapping from vector geometries to raster cells
 
     # load the first file to obtain the affine transform/boundaries
     LOGGER.info("Mapping polygons to raster cells.")
 
-    ds = xarray.open_dataset(f"data/input/pm25__washu__raw/{cfg.temporal_freq}/{filenames[0]}")
-
-    # TODO: layer changes on the basis of the component, but each download has only 1 layer
-    layer = getattr(ds, cfg.satellite_pm25.layer)
+    ds = xarray.open_dataset(filenames[0])
+    layer = getattr(ds, cfg.satellite_component.component[cfg.component].layer)
 
     # obtain affine transform/boundaries
     dims = layer.dims
     assert len(dims) == 2, "netcdf coordinates must be 2d"
-    lon = layer[cfg.satellite_pm25.longitude_layer].values
-    lat = layer[cfg.satellite_pm25.latitude_layer].values
+    lon = layer[cfg.satellite_component.longitude_layer].values
+    lat = layer[cfg.satellite_component.latitude_layer].values
     transform = rasterio.transform.from_origin(
         lon[0], lat[-1], lon[1] - lon[0], lat[1] - lat[0]
     )
@@ -91,12 +90,26 @@ def main(cfg):
 
     # == aggregate for all the files using the same mapping
     for i, filename in enumerate(filenames):
-        LOGGER.info(f"Aggregating {filename}")
+        
+        match = re.search(r"(?<!\d)(20\d{2})(?=\d{3})", filename)
+        year = match.group(0) if match else None
+        if not year:
+            raise ValueError(f"Filename {filename} does not contain a valid year.")
+        
+        if cfg.temporal_freq == "monthly":
+            match = re.search(r"(?<!\d)(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?!\w)", filename)
+            month_abbr = match.group(0) if match else None
+            if not month_abbr:
+                raise ValueError(f"Filename {filename} does not contain a valid month abbreviation.")
+            month = month_map[month_abbr]
+        else:
+            month = None
+        LOGGER.info(f"Aggregating {filename} as {cfg.temporal_freq} for year {year} month {month if cfg.temporal_freq == 'monthly' else 'N/A'}")
 
         if i > 0:
             # reload the file only if it is different from the first one
-            ds = xarray.open_dataset(f"data/input/pm25__washu__raw/{cfg.temporal_freq}/{filename}")
-            layer = getattr(ds, cfg.satellite_pm25.layer)
+            ds = xarray.open_dataset(filenames[i])
+            layer = getattr(ds, cfg.satellite_component.component[cfg.component].layer)
 
         # === obtain stats quickly using precomputed mapping
         stats = []
@@ -109,30 +122,42 @@ def main(cfg):
             stats.append(np.nanmean(cells))
 
         df = pd.DataFrame(
-            {"pm25": stats, "year": cfg.year},
+            {cfg.component: stats, "year": cfg.year},
             index=pd.Index(polygon_ids, name=cfg.polygon_name)
         )
 
+        if cfg.temporal_freq == "monthly":
+            # add month to the dataframe
+            df["month"] = cfg.month
+        else:
+            # for yearly aggregation, we don't need to add month
+            df["month"] = np.nan
+
         # == save output file
         if cfg.temporal_freq == "yearly":
-            # ignore month since len(filenames) == 1
-            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.temporal_freq}__{cfg.year}.parquet"
+            output_filename = f"data/output/satellite_components/{cfg.component}/yearly/{cfg.component}_{cfg.polygon_name}_{cfg.temporal_freq}_{year}.parquet"
 
         elif cfg.temporal_freq == "monthly":
-            # use month in filename since len(filenames) = 12
-            month = f"{i + 1:02d}"
-            df["month"] = month
-            output_filename = f"pm25__washu__{cfg.polygon_name}_{cfg.temporal_freq}__{cfg.year}_{month}.parquet"
+            output_filename = f"data/output/satellite_components/{cfg.component}/monthly/{cfg.component}_{cfg.polygon_name}_{cfg.temporal_freq}_{year}-{month}.parquet"
 
-        output_path = f"data/output/pm25__washu/{cfg.polygon_name}_{cfg.temporal_freq}/{output_filename}"
-        df.to_parquet(output_path)
+        output_path = os.path.abspath(output_filename)
+        # ensure directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        LOGGER.info(f"Saving output to {output_path}")
+        # save to parquet
+        if os.path.exists(output_path):
+            LOGGER.warning(f"Output file {output_path} already exists. Skipping.")
+        else:
+            LOGGER.info(f"Output file {output_path} does not exist. Creating new file.")
+            df.to_parquet(output_path)
 
         # plot aggregation map using geopandas
         if cfg.plot_output:
             LOGGER.info("Plotting result...")
             gdf = gpd.GeoDataFrame(df, geometry=polygon.geometry.values, crs=polygon.crs)
-            png_path = f"{logging_dir}/{output_filename}.png"
-            gdf.plot(column="pm25", legend=True)
+            png_path = output_path.replace(".parquet", ".png")
+            gdf.plot(column=cfg.component, legend=True)
             plt.savefig(png_path)
 
 
