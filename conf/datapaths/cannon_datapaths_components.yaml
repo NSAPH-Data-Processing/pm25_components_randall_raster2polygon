@@ -1,0 +1,12 @@
+input:
+  pm25_components__washu__raw: 
+    yearly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/yearly/
+    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/monthly/
+  shapefiles: null
+  
+  pm25_components__washu__grid_0_1__dataloader:
+    yearly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/yearly/
+    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/monthly/
+
+
+output: null
