@@ -43,11 +43,11 @@ rule all:
 # the agggregation for. This is NOT parallelized over all polygons and years. The current setting will
 # generate aggregations for the currently hardcoded polygon_name and shapefile_year variables.
 # Possible #TODO: make this a job matrix as well
-# rule download_shapefiles:
-#     output:
-#         "data/input/shapefiles/shapefile_{polygon}_{shapefile_year}/shapefile.shp"
-#     shell:
-#         "python src/download_shapefile.py polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
+rule download_shapefiles:
+    output:
+        "data/input/shapefiles/shapefile_{polygon}_{shapefile_year}/shapefile.shp"
+    shell:
+        "python src/download_shapefile.py polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
 
 # this rule launches the download of all the components. It essentially forces download_component rule to run
 rule download_all_components:
