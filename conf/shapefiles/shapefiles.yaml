@@ -42,6 +42,9 @@ county: # County shapefiles (cartographic boundaries) https://www.census.gov/pro
   2022:
     url: https://www2.census.gov/geo/tiger/GENZ2022/shp/cb_2022_us_county_500k.zip
     idvar: GEOID
+  2023:
+    url: https://www2.census.gov/geo/tiger/GENZ2023/shp/cb_2023_us_county_500k.zip
+    idvar: GEOID
 
 zcta: # ZCTA shapefiles (cartographic boudaries) https://www.census.gov/programs-surveys/geography/guidance/tiger-data-products-guide.html
   2000:
