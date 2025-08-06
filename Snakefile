@@ -13,7 +13,7 @@ polygon_names = config['polygon_name']
 shapefile_years = config['shapefile_year']
 components = config['components']
 months_list = [str(i).zfill(2) for i in range(1, 12 + 1)]
-years_list = list(range(2000, 2022 + 1)) #TODO : should this be 2000-2022? This was the range of files I found in the site: https://wustl.app.box.com/s/tfyt4uyuzbt4hbnw7bhos16aep9b5u7g/folder/251943064650
+years_list = list(range(2000, 2023 + 1)) 
 
 
 # === Load Hydra Config ===
@@ -29,25 +29,12 @@ shapefiles_cfg = hydra_cfg.shapefiles
 # add the file stem to the input of this rule.
 rule all:
     input:
-        # yearly aggregated component files
+        # merged files with all components (one file per year) - directly aggregated
         expand(
-            f"data/output/satellite_components/{{component}}/" +
-            f"yearly/{{component}}_{{polygon_name}}_{{temporal_freq}}_" +  
-            f"{{year}}.parquet", 
+            f"data/output/satellite_components/{{polygon_name}}_{{temporal_freq}}/" +
+            f"pm25_components__{{polygon_name}}_{{temporal_freq}}_{{year}}.parquet", 
             temporal_freq=temporal_frequencies,
             year=years_list,
-            component=components,
-            polygon_name=polygon_names
-        ),
-        # monthly aggregated component files
-        expand(
-            f"data/output/satellite_components/{{component}}/" +
-            f"monthly/{{component}}_{{polygon_name}}_{{temporal_freq}}_" +  
-            f"{{year}}_{{month}}.parquet", 
-            temporal_freq=temporal_frequencies,
-            year=years_list,
-            month=months_list,
-            component=components,
             polygon_name=polygon_names
         )
 
@@ -56,11 +43,11 @@ rule all:
 # the agggregation for. This is NOT parallelized over all polygons and years. The current setting will
 # generate aggregations for the currently hardcoded polygon_name and shapefile_year variables.
 # Possible #TODO: make this a job matrix as well
-rule download_shapefiles:
-    output:
-        "data/input/shapefiles/shapefile_{polygon}_{shapefile_year}/shapefile.shp"
-    shell:
-        "python src/download_shapefile.py polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
+# rule download_shapefiles:
+#     output:
+#         "data/input/shapefiles/shapefile_{polygon}_{shapefile_year}/shapefile.shp"
+#     shell:
+#         "python src/download_shapefile.py polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
 
 # this rule launches the download of all the components. It essentially forces download_component rule to run
 rule download_all_components:
@@ -80,39 +67,41 @@ rule download_component:
         "logs/download_components_{component}_{temporal_freq}.log"
     shell:
        f"python src/download_components.py "
-       "component={wildcards.component} +temporal_freq={wildcards.temporal_freq} &> {log}"
+       "component={wildcards.component} ++temporal_freq={wildcards.temporal_freq} &> {log}"
 
 
 def get_shapefile_input(wildcards):
-    shapefile_year = available_shapefile_year(int(wildcards.year), years_list)
+    # Get the available shapefile years for this polygon type from config
+    shapefile_years_list = [int(year) for year in shapefiles_cfg[wildcards.polygon_name].keys()]
+    shapefile_year = available_shapefile_year(int(wildcards.year), shapefile_years_list)
     return f"data/input/shapefiles/shapefile_{wildcards.polygon_name}_{shapefile_year}/shapefile.shp"
 
 rule aggregate_components_yearly:
     input:
         get_shapefile_input,
-        lambda wildcards: f"data/input/satellite_components/{wildcards.component}/yearly/"
+        lambda wildcards: [f"data/input/satellite_components/{component}/yearly/" for component in components]
     output:
-        "data/output/satellite_components/{component}/yearly/{component}_{polygon_name}_yearly_{year}.parquet"
+        "data/output/satellite_components/{polygon_name}_yearly/pm25_components__{polygon_name}_yearly_{year}.parquet"
     log:
-        "logs/aggregate_yearly_{component}_{polygon_name}_yearly_{year}.log"
+        "logs/aggregate_yearly_all_components_{polygon_name}_yearly_{year}.log"
     shell:
         (
-            "PYTHONPATH=. python src/aggregate_components.py component={wildcards.component} "
-            "polygon_name={wildcards.polygon_name} +temporal_freq=yearly +year={wildcards.year} " +
+            "PYTHONPATH=. python src/aggregate_all_components.py " +
+            "polygon_name={wildcards.polygon_name} ++temporal_freq=yearly ++year={wildcards.year} " +
             "&> {log}"
         )
 
 rule aggregate_components_monthly:
     input:
         get_shapefile_input,
-        lambda wildcards: directory(f"data/input/satellite_components/{wildcards.component}/monthly/")
+        lambda wildcards: [directory(f"data/input/satellite_components/{component}/monthly/") for component in components]
     output:
-        "data/output/satellite_components/{component}/monthly/{component}_{polygon_name}_monthly_{year}-{month}.parquet"
+        "data/output/satellite_components/{polygon_name}_monthly/pm25_components__{polygon_name}_monthly_{year}.parquet"
     log:
-        "logs/aggregate_monthly_{component}_{polygon_name}_monthly_{year}-{month}.log"
+        "logs/aggregate_monthly_all_components_{polygon_name}_monthly_{year}.log"
     shell:
         (
-            "PYTHONPATH=. python src/aggregate_components.py component={wildcards.component} " +
-            "polygon_name={wildcards.polygon_name} +temporal_freq=monthly " +
+            "PYTHONPATH=. python src/aggregate_all_components.py " +
+            "polygon_name={wildcards.polygon_name} ++temporal_freq=monthly ++year={wildcards.year} " +
             "&> {log}"
         )
