@@ -7,7 +7,7 @@ yearly:
     dust: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323406212419
     bc: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211271004
     om: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323207493278
-    om_h20: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323207493278
+    om_h2o: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323207493278
 
   zipname: Annual
   
@@ -21,7 +21,7 @@ monthly:
     dust: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323406270900
     bc: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323213972738
     om: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211138164
-    om_h20: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211138164
+    om_h2o: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211138164
 
   zipname: Monthly
 
@@ -56,6 +56,6 @@ component:
   om:
     file_prefix: "V5NA05.02.HybridOM-OM.NorthAmerica"
     layer: "GWROM"
-  om_h20:
+  om_h2o:
     file_prefix: "V5NA05.02.HybridOM-OM.NorthAmerica"
     layer: "GWROM_H2O"

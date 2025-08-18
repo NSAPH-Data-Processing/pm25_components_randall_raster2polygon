@@ -1,20 +1,20 @@
 # top level config file for the project
 defaults:
   - _self_
-  - datapaths: cannon_datapaths.yaml
+  - datapaths: datapaths.yaml
   - shapefiles: shapefiles
   - satellite_component: us_components
 
 
 # == aggregation args
 # this section defines how we aggregate the data
-temporal_freq: yearly # yearly, monthly to be matched with cfg.satellite_pm25
+temporal_freq: monthly # yearly, monthly to be matched with cfg.satellite_pm25
 year: [2000, 2023]
 
 # == shapefile download args
 # this section is used to download the shapefiles for the polygons into which we aggregate all the data
 polygon_name: ["zcta"] # zcta, county to be matched with cfg.shapefiles
-shapefile_year: [2000, 2010, 2020] #to be matched with cfg.shapefiles
+shapefile_year: [2000,2010,2020] #to be matched with cfg.shapefiles
 
 show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
@@ -28,7 +28,7 @@ component:
   - dust
   - bc
   - om
-  - om_h20 # this is actually the same as om, but the file for om has 2 layers in it, so we just repeat the step in the pipeline
+  - om_h2o # this is actually the same as om, but the file for om has 2 layers in it, so we just repeat the step in the pipeline
 
 hydra:
   run:
