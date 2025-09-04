@@ -3,7 +3,7 @@ input:
   pm25_components__randall: 
     yearly: null
     monthly: null
-  shapefiles: /n/dominici_lab/lab/data_processing/jonathan_pm25_washu_raster2polygon/pm25_washu_raster2polygon/data/input/shapefiles
+  shapefiles: null
 
 intermediate:
   pm25_components__randall:
