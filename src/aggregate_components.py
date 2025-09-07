@@ -8,7 +8,6 @@ import logging
 import pathlib
 import os
 import re
-import matplotlib.pyplot as plt
 
 from hydra.core.hydra_config import HydraConfig
 from utils.faster_zonal_stats import polygon_to_raster_cells
@@ -37,34 +36,37 @@ def available_shapefile_year(year, shapefile_years_list: list):
  
     return min(shapefile_years_list)  # Returns the last element if year is greater than the last element
 
+
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     # get aggregation defaults
-    LOGGER.info(f"Running for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.component}")
+    LOGGER.info(f"Running aggregation for: {cfg.component} {cfg.temporal_freq} {cfg.polygon_name} {cfg.year}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
     # == load shapefile
     LOGGER.info("Loading shapefile.")
     shapefile_years_list = list(cfg.shapefiles[cfg.polygon_name].keys())
-    #use previously available shapefile
     shapefile_year = available_shapefile_year(cfg.year, shapefile_years_list)
 
     shape_path = f'data/input/shapefiles/shapefile_{cfg.polygon_name}_{shapefile_year}/shapefile.shp'
     polygon = gpd.read_file(shape_path)
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
-    # from omegaconf import OmegaConf
-    # print(OmegaConf.to_yaml(cfg))
-    # import sys; sys.exit(0)  # exit here to avoid running the rest of the code
+    # == filenames to be aggregated for this component
+    component_path = pathlib.Path(f"data/input/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/")
+    if not component_path.exists():
+        LOGGER.error(f"Component path {component_path} does not exist.")
+        return
 
-    # == filenames to be aggregated
-    filenames = pathlib.Path(f"data/input/satellite_components/{cfg.component}/{cfg.temporal_freq}/").glob("*.nc")
+    filenames = component_path.glob("*.nc")
     filenames = [str(f) for f in filenames if f.is_file()]
-    
-    # == compute mapping from vector geometries to raster cells
 
-    # load the first file to obtain the affine transform/boundaries
-    LOGGER.info("Mapping polygons to raster cells.")
+    if not filenames:
+        LOGGER.error(f"No files found for component {cfg.component}.")
+        return
+
+    # == compute mapping from vector geometries to raster cells (only once per component)
+    LOGGER.info(f"Mapping polygons to raster cells for {cfg.component}.")
 
     ds = xarray.open_dataset(filenames[0])
     layer = getattr(ds, cfg.satellite_component.component[cfg.component].layer)
@@ -88,14 +90,22 @@ def main(cfg):
         verbose=cfg.show_progress,
     )
 
+    # Store component data for all files
+    component_data = []
+
     # == aggregate for all the files using the same mapping
     for i, filename in enumerate(filenames):
         
-        match = re.search(r"(?<!\d)(20\d{2})(?=\d{3})", filename)
-        year = match.group(0) if match else None
-        if not year:
+        # Extract year from filename
+        match = re.search(r"(20\d{2})(?:-\1-|\d{3}-\1\d{3})", filename)
+        file_year = match.group(1) if match else None
+        if not file_year:
             raise ValueError(f"Filename {filename} does not contain a valid year.")
         
+        # Only process files for the requested year
+        if int(file_year) != cfg.year:
+            continue
+            
         if cfg.temporal_freq == "monthly":
             match = re.search(r"(?<!\d)(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?!\w)", filename)
             month_abbr = match.group(0) if match else None
@@ -104,7 +114,8 @@ def main(cfg):
             month = month_map[month_abbr]
         else:
             month = None
-        LOGGER.info(f"Aggregating {filename} as {cfg.temporal_freq} for year {year} month {month if cfg.temporal_freq == 'monthly' else 'N/A'}")
+            
+        LOGGER.info(f"Aggregating {filename} as {cfg.temporal_freq} for year {file_year} month {month if cfg.temporal_freq == 'monthly' else 'N/A'}")
 
         if i > 0:
             # reload the file only if it is different from the first one
@@ -121,44 +132,39 @@ def main(cfg):
             cells = layer.values[::-1][indices]
             stats.append(np.nanmean(cells))
 
-        df = pd.DataFrame(
-            {cfg.component: stats, "year": cfg.year},
-            index=pd.Index(polygon_ids, name=cfg.polygon_name)
-        )
-
+        df_data = {
+            cfg.component: stats, 
+            "year": int(file_year),
+            cfg.polygon_name: polygon_ids
+        }
+        
         if cfg.temporal_freq == "monthly":
-            # add month to the dataframe
-            df["month"] = cfg.month
-        else:
-            # for yearly aggregation, we don't need to add month
-            df["month"] = np.nan
+            df_data["month"] = int(month)
+            
+        component_data.append(pd.DataFrame(df_data))
 
-        # == save output file
-        if cfg.temporal_freq == "yearly":
-            output_filename = f"data/output/satellite_components/{cfg.component}/yearly/{cfg.component}_{cfg.polygon_name}_{cfg.temporal_freq}_{year}.parquet"
+    # concatenate all data (necessary for monthly files to combine all months)
+    if component_data:
+        final_df = pd.concat(component_data, ignore_index=True)
+    else:
+        LOGGER.error(f"No data processed for component {cfg.component}!")
+        return
 
-        elif cfg.temporal_freq == "monthly":
-            output_filename = f"data/output/satellite_components/{cfg.component}/monthly/{cfg.component}_{cfg.polygon_name}_{cfg.temporal_freq}_{year}-{month}.parquet"
+    # == save individual component output file
+    output_dir = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/"
+    output_filename = f"{output_dir}{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
 
-        output_path = os.path.abspath(output_filename)
-        # ensure directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
-        LOGGER.info(f"Saving output to {output_path}")
-        # save to parquet
-        if os.path.exists(output_path):
-            LOGGER.warning(f"Output file {output_path} already exists. Skipping.")
-        else:
-            LOGGER.info(f"Output file {output_path} does not exist. Creating new file.")
-            df.to_parquet(output_path)
+    output_path = os.path.abspath(output_filename)
+    LOGGER.info(f"Saving component output to {output_path}")
+    LOGGER.info(f"Component dataset shape: {final_df.shape}")
+    LOGGER.info(f"Columns: {list(final_df.columns)}")
+    
+    # save to parquet
+    final_df.to_parquet(output_path, index=False)
 
-        # plot aggregation map using geopandas
-        if cfg.plot_output:
-            LOGGER.info("Plotting result...")
-            gdf = gpd.GeoDataFrame(df, geometry=polygon.geometry.values, crs=polygon.crs)
-            png_path = output_path.replace(".parquet", ".png")
-            gdf.plot(column=cfg.component, legend=True)
-            plt.savefig(png_path)
+    LOGGER.info(f"Successfully created component file: {output_path}")
 
 
 if __name__ == "__main__":

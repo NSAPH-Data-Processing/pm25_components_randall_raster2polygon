@@ -1,12 +1,17 @@
 input:
-  pm25_components__washu__raw: 
-    yearly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/yearly/
-    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__raw/monthly/
-  shapefiles: null
-  
-  pm25_components__washu__grid_0_1__dataloader:
-    yearly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/yearly/
-    monthly: /n/netscratch/dominici_lab/Lab/pm25_components__washu__grid_0_1__dataloader/monthly/
+  pm25_components__randall: 
+    yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/raw/yearly/
+    monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/raw/monthly/
+  shapefiles: null # the pipeline will download the shapefiles
 
+intermediate:
+  pm25_components__randall:
+    yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/.intermediate/yearly/
+    monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/.intermediate/monthly/
 
-output: null
+output: 
+  pm25_components__randall:
+    zcta_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/zcta_yearly/
+    zcta_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/zcta_monthly/
+    county_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/county_yearly/
+    county_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/county_monthly/

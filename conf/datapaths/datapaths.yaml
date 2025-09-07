@@ -1,12 +1,17 @@
 # if files are stored within the local copy of the repository, then use null:
 input:
-  pm25__washu__raw: 
+  pm25_components__randall: 
     yearly: null
     monthly: null
   shapefiles: null
 
+intermediate:
+  pm25_components__randall:
+    yearly: null
+    monthly: null
+
 output:
-  pm25__washu: 
+  pm25_components__randall:
     zcta_yearly: null
     zcta_monthly: null
     county_yearly: null

@@ -28,7 +28,7 @@ def main(cfg):
     url = url_cfg.url[component]
 
     download_dir = (
-        f"data/input/satellite_components/{component}/{cfg.temporal_freq}/"
+        f"data/input/pm25_components__randall/{cfg.temporal_freq}/{component}/"
     )
     download_dir = os.path.abspath(download_dir)  # make absolute path
     download_zip = f"{download_dir}/{url_cfg.zipname}.zip"
