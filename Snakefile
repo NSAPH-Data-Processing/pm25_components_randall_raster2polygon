@@ -2,7 +2,7 @@ import yaml
 from src.aggregate_components import available_shapefile_year
 from hydra import compose, initialize
 
-conda: "requirements.yaml"
+conda: "environment.yaml"
 configfile: "conf/snakemake.yaml"
 
 # === Define Job Matrix ===
@@ -53,7 +53,7 @@ rule download_shapefiles:
 rule download_all_components:
     input:
         expand(
-            f"data/input/pm25_components__randall/{{component}}/{{temporal_freq}}/",
+            f"data/input/pm25_components__randall/{{temporal_freq}}/{{component}}/",
             component=components,
             temporal_freq=temporal_frequencies
         )
@@ -62,7 +62,7 @@ rule download_all_components:
 # note that this only needs to download once, so no need for temporal_freq or year wildcards
 rule download_component:
     output:
-        directory(f"data/input/pm25_components__randall/{{component}}/{{temporal_freq}}/")
+        directory(f"data/input/pm25_components__randall/{{temporal_freq}}/{{component}}/")
     log:    
         "logs/download_components_{component}_{temporal_freq}.log"
     shell:
@@ -80,9 +80,9 @@ def get_shapefile_input(wildcards):
 rule aggregate_single_component:
     input:
         get_shapefile_input,
-        "data/input/pm25_components__randall/{component}/{temporal_freq}/"
+        "data/input/pm25_components__randall/{temporal_freq}/{component}/"
     output:
-        "data/intermediate/pm25_components__randall/{component}_{temporal_freq}/{component}__{polygon_name}_{temporal_freq}_{year}.parquet"
+        "data/intermediate/pm25_components__randall/{temporal_freq}/{component}/{component}__{polygon_name}_{temporal_freq}_{year}.parquet"
     log:
         "logs/aggregate_{component}_{polygon_name}_{temporal_freq}_{year}.log"
     shell:
@@ -94,7 +94,7 @@ rule aggregate_single_component:
 
 rule merge_components_yearly:
     input:
-        lambda wildcards: expand("data/intermediate/pm25_components__randall/{component}_yearly/{component}__{polygon_name}_yearly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
+        lambda wildcards: expand("data/intermediate/pm25_components__randall/yearly/{component}/{component}__{polygon_name}_yearly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
     output:
         "data/output/pm25_components__randall/{polygon_name}_yearly/pm25_components__randall__{polygon_name}_yearly_{year}.parquet"
     log:
@@ -108,7 +108,7 @@ rule merge_components_yearly:
 
 rule merge_components_monthly:
     input:
-        lambda wildcards: expand("data/intermediate/pm25_components__randall/{component}_monthly/{component}__{polygon_name}_monthly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
+        lambda wildcards: expand("data/intermediate/pm25_components__randall/monthly/{component}/{component}__{polygon_name}_monthly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
     output:
         "data/output/pm25_components__randall/{polygon_name}_monthly/pm25_components__randall__{polygon_name}_monthly_{year}.parquet"
     log:

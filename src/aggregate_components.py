@@ -53,7 +53,7 @@ def main(cfg):
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
     # == filenames to be aggregated for this component
-    component_path = pathlib.Path(f"data/input/pm25_components__randall/{cfg.component}/{cfg.temporal_freq}/")
+    component_path = pathlib.Path(f"data/input/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/")
     if not component_path.exists():
         LOGGER.error(f"Component path {component_path} does not exist.")
         return
@@ -151,7 +151,7 @@ def main(cfg):
         return
 
     # == save individual component output file
-    output_dir = f"data/intermediate/pm25_components__randall/{cfg.component}_{cfg.temporal_freq}/"
+    output_dir = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/"
     output_filename = f"{output_dir}{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
 
     os.makedirs(output_dir, exist_ok=True)

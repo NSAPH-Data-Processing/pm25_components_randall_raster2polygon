@@ -2,10 +2,10 @@
 
 temporal_freq: # the aggregation frequency
   - monthly 
-  # - yearly
+  - yearly
 polygon_name: # the geographical shape to aggregate the data into
   - zcta
-  # - county
+  - county
 shapefile_year: # the year of the shapefile to be downloaded
   - 2000
   - 2010

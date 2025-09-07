@@ -24,7 +24,7 @@ def main(cfg):
     # Load all component files and merge them
     component_dfs = []
     for component in components:
-        component_file = f"data/intermediate/pm25_components__randall/{component}_{cfg.temporal_freq}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+        component_file = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{component}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
         
         if not os.path.exists(component_file):
             LOGGER.error(f"Component file not found: {component_file}")
