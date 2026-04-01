@@ -18,7 +18,7 @@ def main(cfg):
     LOGGER.info(f"Running merge for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year} version={cfg.version}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
-    components = cfg.satellite_component.component.keys()
+    components = cfg.components
     LOGGER.info(f"Components to merge: {list(components)}")
 
     # Load all component files and merge them

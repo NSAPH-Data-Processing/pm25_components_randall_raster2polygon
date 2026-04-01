@@ -12,9 +12,10 @@ temporal_frequencies = config['temporal_freq']
 polygon_names = config['polygon_name']
 shapefile_years = config['shapefile_year']
 components = config['components']
+components_str = ",".join(components)
 version = config.get('version', 'V5NA')  # V5NA or V6NA — selects data source and directory layout
 months_list = [str(i).zfill(2) for i in range(1, 12 + 1)]
-years_list = list(range(2000, 2023 + 1))
+years_list = config['years']
 
 # Map algorithm version to its satellite_component Hydra config group name
 satellite_component_config = {
@@ -120,6 +121,7 @@ rule merge_components_yearly:
             f"satellite_component={satellite_component_config} " +
             f"++version={version} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=yearly ++year={wildcards.year} " +
+            f"'++components=[{components_str}]' " +
             "&> {log}"
         )
 
@@ -141,5 +143,6 @@ rule merge_components_monthly:
             f"satellite_component={satellite_component_config} " +
             f"++version={version} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=monthly ++year={wildcards.year} " +
+            f"'++components=[{components_str}]' " +
             "&> {log}"
         )

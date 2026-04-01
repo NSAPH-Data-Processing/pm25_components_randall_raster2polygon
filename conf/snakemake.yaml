@@ -16,11 +16,15 @@ shapefile_year: # the year of the shapefile to be downloaded
   # this is the year of the shapefile to be downloaded, it is used in the pipeline to download the shapefiles
 components: # the component data to be processed
   - no3
-  # - so4
-  # - ss
-  # - nh4
-  # - dust
-  # - bc
-  # - om
-  # - om_h2o # this comes from the same om file, but the file has 2 layers, so we repeat the step in the pipeline
+  - so4
+  - ss
+  - nh4
+  - dust
+  - bc
+  - om
+  - om_h2o # this comes from the same om file, but the file has 2 layers, so we repeat the step in the pipeline
+
+years: # the years to be processed
+  - 2000
+  - 2001
 
