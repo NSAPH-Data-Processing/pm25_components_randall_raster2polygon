@@ -28,11 +28,18 @@ def main(cfg):
     url = url_cfg.url[component]
 
     download_dir = (
-        f"data/input/pm25_components__randall/{cfg.temporal_freq}/{component}/"
+        f"data/input/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{component}/"
     )
     download_dir = os.path.abspath(download_dir)  # make absolute path
-    download_zip = f"{download_dir}/{url_cfg.zipname}.zip"
-    src_dir = f"{download_dir}/{url_cfg.zipname}"
+
+    # Per-component zipname takes priority (V6NA: each component folder is named after the
+    # component, so Box creates e.g. NO3.zip). Falls back to the temporal-freq-level zipname
+    # (V5NA: folder is named "Annual" or "Monthly", so Box creates Annual.zip / Monthly.zip).
+    component_cfg = cfg.satellite_component.component[component]
+    zipname = getattr(component_cfg, 'zipname', None) or url_cfg.zipname
+
+    download_zip = f"{download_dir}/{zipname}.zip"
+    src_dir = f"{download_dir}/{zipname}"
     dest_dir = f"{download_dir}/"
 
     # == setup chrome driver

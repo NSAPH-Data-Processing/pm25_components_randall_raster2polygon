@@ -4,20 +4,22 @@ Code to produce spatial aggregations of PM2.5 **component** estimates as generat
 
 This pipeline processes 8 PM2.5 components: NO3, SO4, Sea Salt (SS), NH4, Dust, Black Carbon (BC), Organic Matter (OM), and Organic Matter with H2O (OM_H2O).
 
+The pipeline supports multiple algorithm versions (**V5NA** and **V6NA**) as separate data sources, selected via configuration. Data for each version is stored in isolated directory trees to prevent cross-contamination.
+
 ---
 
 # Washington University PM2.5 Components
 
 The [Atmospheric Composition Analysis Group](https://sites.wustl.edu/acag/datasets/surface-pm2-5/) uses a combination of satellite images, monitors and simulation to generate estimates of PM2.5 and its chemical components. Estimates are stored in NetCDF files and made publicly available. There are several versions of the estimates.
 
+## V5NA (V5.NA.05.02)
+
 The version [V5.NA.05.02](https://sites.wustl.edu/acag/datasets/surface-pm2-5/) consists of mean PM2.5 component concentrations (μg/m³) available at:
 
-*  Temporal frequency: Annual and monthly  
+*  Temporal frequency: Annual and monthly
 *  Grid resolution: High resolution for North America
 *  Geographic region: North America only
 *  Components: NO3, SO4, Sea Salt (SS), NH4, Dust, Black Carbon (BC), Organic Matter (OM), and Organic Matter with H2O (OM_H2O)
-
-In this repository, we specifically aggregate the V5.NA.05.02 component files for North America, processing all 8 components simultaneously. The temporal frequency can be modified via configuration parameters.
 
 The file name convention varies by component, for example:
 * NO3: V5NA05.02.HybridNO3-NO3.NorthAmerica.yyyyjjj-yyyyjjj.nc
@@ -25,6 +27,16 @@ The file name convention varies by component, for example:
 * BC: V5NA05.02.HybridBC-BC.NorthAmerica.yyyyjjj-yyyyjjj.nc
 
 Where yyyy represents the year and jjj represents the Julian day.
+
+## V6NA (V6.NA.01)
+
+The version [V6.NA.01](https://www.satpm.org/v6-na-01) provides updated component estimates with improved algorithms:
+
+*  Temporal frequency: Annual and monthly
+*  Geographic region: North America only
+*  Components: NO3, SO4, Sea Salt (SS), NH4, Dust, Black Carbon (BC), Organic Matter (OM), and Organic Matter with H2O (OM_H2O)
+
+> **TODO**: Fill in Box folder URLs and file prefixes/layer names in `conf/satellite_component/us_components_v6na.yaml` from the data source page https://www.satpm.org/v6-na-01.
 
 ## References:
 Aaron van Donkelaar, Melanie S. Hammer, Liam Bindle, Michael Brauer, Jeffery R. Brook, Michael J. Garay, N. Christina Hsu, Olga V. Kalashnikova, Ralph A. Kahn, Colin Lee, Robert C. Levy, Alexei Lyapustin, Andrew M. Sayer and Randall V. Martin (2021). Monthly Global Estimates of Fine Particulate Matter and Their Uncertainty Environmental Science & Technology, 2021, [doi:10.1021/acs.est.1c05309](https://pubs.acs.org/doi/10.1021/acs.est.1c05309).
@@ -65,6 +77,7 @@ The configuration structure within the `/conf` folder allows you to modify the i
 
 ## Key parameters:
 
+* `version`: Algorithm version to process. Options are: `V5NA` (default) and `V6NA`. Controls which data source is used and which directory subtree data is written to.
 * `temporal_freq`: Determines whether the original annual (`yearly`) or monthly data will be aggregated. Options are: `yearly` and `monthly`.
 * `polygon_name`: Determines into which polygons the component grids will be aggregated. Options are: `zcta` and `county`.
 * `components`: List of PM2.5 components to process. Current components: `no3`, `so4`, `ss`, `nh4`, `dust`, `bc`, `om`, `om_h2o`.
@@ -72,9 +85,29 @@ The configuration structure within the `/conf` folder allows you to modify the i
 
 ## Configuration files:
 
-* `conf/snakemake.yaml`: Main pipeline configuration
-* `conf/satellite_component/us_components.yaml`: Component-specific URLs and file patterns
+* `conf/snakemake.yaml`: Main pipeline configuration (includes `version`)
+* `conf/satellite_component/us_components.yaml`: V5NA component URLs and file patterns
+* `conf/satellite_component/us_components_v6na.yaml`: V6NA component URLs and file patterns (fill in TODOs)
 * `conf/shapefiles/shapefiles.yaml`: Shapefile sources and parameters
+* `conf/datapaths/cannon_datapaths_components.yaml`: FASRC absolute paths for V5NA
+* `conf/datapaths/cannon_datapaths_v6_components.yaml`: FASRC absolute paths for V6NA
+
+## Version-based directory layout:
+
+All input, intermediate, and output data is segregated by version to allow both V5NA and V6NA to coexist:
+
+```
+data/
+├── input/pm25_components__randall/
+│   ├── V5NA/{temporal_freq}/{component}/   ← V5NA raw NetCDF files
+│   └── V6NA/{temporal_freq}/{component}/   ← V6NA raw NetCDF files
+├── intermediate/pm25_components__randall/
+│   ├── V5NA/{temporal_freq}/{component}/   ← per-component parquet
+│   └── V6NA/{temporal_freq}/{component}/
+└── output/pm25_components__randall/
+    ├── V5NA/{polygon_name}_{temporal_freq}/ ← merged output parquet
+    └── V6NA/{polygon_name}_{temporal_freq}/
+```
 
 ---
 
@@ -111,20 +144,34 @@ python utils/create_dir_paths.py
 
 You can run the pipeline steps manually or run the snakemake pipeline described in the Snakefile.
 
-**run pipeline steps manually**
+**run pipeline steps manually (V5NA)**
 
 ```bash
 python src/download_shapefile.py polygon_name=zcta shapefile_year=2020
-python src/download_components.py component=no3 ++temporal_freq=yearly
+python src/download_components.py component=no3 ++temporal_freq=yearly ++version=V5NA
 export PYTHONPATH=.
-python src/aggregate_all_components.py polygon_name=zcta ++temporal_freq=yearly ++year=2020
+python src/aggregate_components.py polygon_name=zcta ++temporal_freq=yearly ++year=2020 ++version=V5NA
 ```
 
-**run snakemake pipeline**
-The pipeline processes all configured components simultaneously:
+**run pipeline steps manually (V6NA)**
+
+```bash
+python src/download_shapefile.py polygon_name=zcta shapefile_year=2020
+python src/download_components.py satellite_component=us_components_v6na component=no3 ++temporal_freq=yearly ++version=V6NA
+export PYTHONPATH=.
+python src/aggregate_components.py satellite_component=us_components_v6na polygon_name=zcta ++temporal_freq=yearly ++year=2020 ++version=V6NA
+```
+
+**run snakemake pipeline (V5NA — default)**
 
 ```bash
 snakemake --cores 4
+```
+
+**run snakemake pipeline (V6NA)**
+
+```bash
+snakemake --cores 4 -C version=V6NA
 ```
 
 For SLURM environments, use the provided batch script:
@@ -133,7 +180,7 @@ For SLURM environments, use the provided batch script:
 sbatch snakefile.sbatch
 ```
 
-Modify the configuration in `conf/snakemake.yaml` to change `polygon_name`, `temporal_freq`, and `components` as needed.
+Modify the configuration in `conf/snakemake.yaml` to change `version`, `polygon_name`, `temporal_freq`, and `components` as needed.
 
 ## Dockerized Pipeline
 

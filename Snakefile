@@ -12,14 +12,20 @@ temporal_frequencies = config['temporal_freq']
 polygon_names = config['polygon_name']
 shapefile_years = config['shapefile_year']
 components = config['components']
+version = config.get('version', 'V5NA')  # V5NA or V6NA — selects data source and directory layout
 months_list = [str(i).zfill(2) for i in range(1, 12 + 1)]
-years_list = list(range(2000, 2023 + 1)) 
+years_list = list(range(2000, 2023 + 1))
 
+# Map algorithm version to its satellite_component Hydra config group name
+satellite_component_config = {
+    'V5NA': 'us_components',
+    'V6NA': 'us_components_v6na',
+}.get(version, 'us_components')
 
 # === Load Hydra Config ===
-# get hydra config variables from the config.yaml file
+# get hydra config variables from the config.yaml file, applying the version-specific satellite_component
 with initialize(version_base=None, config_path="conf"):
-    hydra_cfg = compose(config_name="config")
+    hydra_cfg = compose(config_name="config", overrides=[f"satellite_component={satellite_component_config}"])
 
 satellite_component_cfg = hydra_cfg.satellite_component
 shapefiles_cfg = hydra_cfg.shapefiles
@@ -31,8 +37,8 @@ rule all:
     input:
         # merged files with all components (one file per year) - directly aggregated
         expand(
-            f"data/output/pm25_components__randall/{{polygon_name}}_{{temporal_freq}}/" +
-            f"pm25_components__randall__{{polygon_name}}_{{temporal_freq}}_{{year}}.parquet", 
+            f"data/output/pm25_components__randall/{version}/{{polygon_name}}_{{temporal_freq}}/" +
+            f"pm25_components__randall__{{polygon_name}}_{{temporal_freq}}_{{year}}.parquet",
             temporal_freq=temporal_frequencies,
             year=years_list,
             polygon_name=polygon_names
@@ -53,7 +59,7 @@ rule download_shapefiles:
 rule download_all_components:
     input:
         expand(
-            f"data/input/pm25_components__randall/{{temporal_freq}}/{{component}}/",
+            f"data/input/pm25_components__randall/{version}/{{temporal_freq}}/{{component}}/",
             component=components,
             temporal_freq=temporal_frequencies
         )
@@ -62,11 +68,13 @@ rule download_all_components:
 # note that this only needs to download once, so no need for temporal_freq or year wildcards
 rule download_component:
     output:
-        directory(f"data/input/pm25_components__randall/{{temporal_freq}}/{{component}}/")
-    log:    
-        "logs/download_components_{component}_{temporal_freq}.log"
+        directory(f"data/input/pm25_components__randall/{version}/{{temporal_freq}}/{{component}}/")
+    log:
+        f"logs/download_components_{{component}}_{{temporal_freq}}_{version}.log"
     shell:
        f"python src/download_components.py "
+       f"satellite_component={satellite_component_config} "
+       f"++version={version} "
        "component={wildcards.component} ++temporal_freq={wildcards.temporal_freq} &> {log}"
 
 
@@ -80,42 +88,58 @@ def get_shapefile_input(wildcards):
 rule aggregate_single_component:
     input:
         get_shapefile_input,
-        "data/input/pm25_components__randall/{temporal_freq}/{component}/"
+        f"data/input/pm25_components__randall/{version}/{{temporal_freq}}/{{component}}/"
     output:
-        "data/intermediate/pm25_components__randall/{temporal_freq}/{component}/{component}__{polygon_name}_{temporal_freq}_{year}.parquet"
+        f"data/intermediate/pm25_components__randall/{version}/{{temporal_freq}}/{{component}}/{{component}}__{{polygon_name}}_{{temporal_freq}}_{{year}}.parquet"
     log:
-        "logs/aggregate_{component}_{polygon_name}_{temporal_freq}_{year}.log"
+        f"logs/aggregate_{{component}}_{{polygon_name}}_{{temporal_freq}}_{{year}}_{version}.log"
     shell:
         (
             "PYTHONPATH=. python src/aggregate_components.py " +
+            f"satellite_component={satellite_component_config} " +
+            f"++version={version} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq={wildcards.temporal_freq} ++year={wildcards.year} ++component={wildcards.component} " +
             "&> {log}"
         )
 
 rule merge_components_yearly:
     input:
-        lambda wildcards: expand("data/intermediate/pm25_components__randall/yearly/{component}/{component}__{polygon_name}_yearly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
+        lambda wildcards: expand(
+            f"data/intermediate/pm25_components__randall/{version}/yearly/{{component}}/{{component}}__{{polygon_name}}_yearly_{{year}}.parquet",
+            component=components,
+            polygon_name=wildcards.polygon_name,
+            year=wildcards.year
+        )
     output:
-        "data/output/pm25_components__randall/{polygon_name}_yearly/pm25_components__randall__{polygon_name}_yearly_{year}.parquet"
+        f"data/output/pm25_components__randall/{version}/{{polygon_name}}_yearly/pm25_components__randall__{{polygon_name}}_yearly_{{year}}.parquet"
     log:
-        "logs/merge_yearly_components_{polygon_name}_yearly_{year}.log"
+        f"logs/merge_yearly_components_{{polygon_name}}_yearly_{{year}}_{version}.log"
     shell:
         (
             "PYTHONPATH=. python src/merge_components.py " +
+            f"satellite_component={satellite_component_config} " +
+            f"++version={version} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=yearly ++year={wildcards.year} " +
             "&> {log}"
         )
 
 rule merge_components_monthly:
     input:
-        lambda wildcards: expand("data/intermediate/pm25_components__randall/monthly/{component}/{component}__{polygon_name}_monthly_{year}.parquet", component=components, polygon_name=wildcards.polygon_name, year=wildcards.year)
+        lambda wildcards: expand(
+            f"data/intermediate/pm25_components__randall/{version}/monthly/{{component}}/{{component}}__{{polygon_name}}_monthly_{{year}}.parquet",
+            component=components,
+            polygon_name=wildcards.polygon_name,
+            year=wildcards.year
+        )
     output:
-        "data/output/pm25_components__randall/{polygon_name}_monthly/pm25_components__randall__{polygon_name}_monthly_{year}.parquet"
+        f"data/output/pm25_components__randall/{version}/{{polygon_name}}_monthly/pm25_components__randall__{{polygon_name}}_monthly_{{year}}.parquet"
     log:
-        "logs/merge_monthly_components_{polygon_name}_monthly_{year}.log"
+        f"logs/merge_monthly_components_{{polygon_name}}_monthly_{{year}}_{version}.log"
     shell:
         (
             "PYTHONPATH=. python src/merge_components.py " +
+            f"satellite_component={satellite_component_config} " +
+            f"++version={version} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=monthly ++year={wildcards.year} " +
             "&> {log}"
         )

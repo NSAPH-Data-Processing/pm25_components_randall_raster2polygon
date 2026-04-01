@@ -1,0 +1,78 @@
+# V6 North America PM2.5 components configuration
+# Source: https://www.satpm.org/v6-na-01
+# Box shared folder: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89
+
+# File naming convention: V6NA01.CNNPM25.{COMPONENT}.yyyymm-yyyymm.nc
+#   e.g. V6NA01.CNNPM25.NO3.202201-202212.nc  (yearly, Jan–Dec 2022)
+#        V6NA01.CNNPM25.NO3.200101-200101.nc  (monthly, Jan 2001)
+# Monthly files are stored in year subfolders: Monthly/NO3/2001/file.nc
+
+# NOTE on layer names: V6NA uses CNN-based estimates (CNNPM25). The layer
+# names below are inferred from the V6 naming convention (dropping the GWR prefix
+# used in V5NA). Verify with: python -c "import xarray; ds=xarray.open_dataset('file.nc'); print(list(ds.data_vars))"
+
+# NOTE on om_h2o: V5NA OM files contained two layers (GWROM, GWROM_H2O).
+# It is unknown whether V6NA OM files retain the OM_H2O layer. Verify before use.
+
+yearly:
+  url:
+    no3:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364863891758
+    so4:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364865773211
+    ss:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364864391483
+    nh4:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364825218789
+    dust: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364824901573
+    bc:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364827484136
+    om:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364863225238
+    om_h2o: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364863225238  # same file as om
+
+monthly:
+  url:
+    no3:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364848189230
+    so4:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849084523
+    ss:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849223666
+    nh4:  https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364814361592
+    dust: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364816754240
+    bc:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364813453236
+    om:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849566955
+    om_h2o: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849566955  # same file as om
+
+# V6NA: each component lives in its own named folder, so Box zips it as {COMPONENT}.zip
+# This is set per-component below (zipname field) rather than globally.
+
+date_format: yyyymm  # filenames use yyyymm-yyyymm (e.g. 202201-202212)
+latitude_layer: "lat"
+longitude_layer: "lon"
+
+component:
+  no3:
+    file_prefix: "V6NA01.CNNPM25.NO3"
+    layer: "NO3"        # TODO: verify with xarray.open_dataset(file).data_vars
+    zipname: "NO3"      # Box downloads the component folder as NO3.zip
+  so4:
+    file_prefix: "V6NA01.CNNPM25.SO4"
+    layer: "SO4"
+    zipname: "SO4"
+  ss:
+    file_prefix: "V6NA01.CNNPM25.SS"
+    layer: "SS"
+    zipname: "SS"
+  nh4:
+    file_prefix: "V6NA01.CNNPM25.NH4"
+    layer: "NH4"
+    zipname: "NH4"
+  dust:
+    file_prefix: "V6NA01.CNNPM25.DUST"
+    layer: "DUST"
+    zipname: "DUST"
+  bc:
+    file_prefix: "V6NA01.CNNPM25.BC"
+    layer: "BC"
+    zipname: "BC"
+  om:
+    file_prefix: "V6NA01.CNNPM25.OM"
+    layer: "OM"
+    zipname: "OM"
+  om_h2o:
+    file_prefix: "V6NA01.CNNPM25.OM"  # same file as om
+    layer: "OM_H2O"                    # TODO: verify this layer exists in V6NA OM files
+    zipname: "OM"

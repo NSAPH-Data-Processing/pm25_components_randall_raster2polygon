@@ -32,6 +32,7 @@ monthly:
   # "V5GL04.HybridPM25c_0p10.NorthAmerica" #higher resolution
 
 #layer: ??? # changes on the basis of the component, but each download has only 1 layer
+date_format: julian  # V5NA uses yyyyjjj Julian day format (e.g. 2020001-2020365)
 latitude_layer: "lat"
 longitude_layer: "lon"
 component: 

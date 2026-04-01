@@ -1,10 +1,11 @@
 # top level config file for the project
 defaults:
   - _self_
-  - datapaths: datapaths.yaml
+  - datapaths: cannon_datapaths_v6_components
   - shapefiles: shapefiles
-  - satellite_component: us_components
+  - satellite_component: us_components  # V5NA default; override with us_components_v6na for V6NA
 
+version: VgNA  # algorithm version: V5NA or V6NA — must match satellite_component used
 
 # == aggregation args
 # this section defines how we aggregate the data

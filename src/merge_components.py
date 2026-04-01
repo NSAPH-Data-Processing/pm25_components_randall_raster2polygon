@@ -15,7 +15,7 @@ LOGGER = logging.getLogger(__name__)
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     # get aggregation defaults
-    LOGGER.info(f"Running merge for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year}")
+    LOGGER.info(f"Running merge for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year} version={cfg.version}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
     components = cfg.satellite_component.component.keys()
@@ -24,7 +24,7 @@ def main(cfg):
     # Load all component files and merge them
     component_dfs = []
     for component in components:
-        component_file = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{component}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+        component_file = f"data/intermediate/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{component}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
         
         if not os.path.exists(component_file):
             LOGGER.error(f"Component file not found: {component_file}")
@@ -60,7 +60,7 @@ def main(cfg):
     LOGGER.info(f"Columns: {list(final_df.columns)}")
 
     # == save output file
-    output_dir = f"data/output/pm25_components__randall/{cfg.polygon_name}_{cfg.temporal_freq}/"
+    output_dir = f"data/output/pm25_components__randall/{cfg.version}/{cfg.polygon_name}_{cfg.temporal_freq}/"
     output_filename = f"{output_dir}pm25_components__randall__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
 
     os.makedirs(output_dir, exist_ok=True)
