@@ -23,7 +23,6 @@ yearly:
     dust: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364824901573
     bc:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364827484136
     om:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364863225238
-    om_h2o: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364863225238  # same file as om
 
 monthly:
   url:
@@ -34,7 +33,6 @@ monthly:
     dust: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364816754240
     bc:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364813453236
     om:   https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849566955
-    om_h2o: https://wustl.app.box.com/s/qwvj00cvghiebo7wdf1voip42mcdvk89/folder/364849566955  # same file as om
 
 # V6NA: each component lives in its own named folder, so Box zips it as {COMPONENT}.zip
 # This is set per-component below (zipname field) rather than globally.
@@ -71,8 +69,4 @@ component:
   om:
     file_prefix: "V6NA01.CNNPM25.OM"
     layer: "OM"
-    zipname: "OM"
-  om_h2o:
-    file_prefix: "V6NA01.CNNPM25.OM"  # same file as om
-    layer: "OM_H2O"                    # TODO: verify this layer exists in V6NA OM files
     zipname: "OM"
