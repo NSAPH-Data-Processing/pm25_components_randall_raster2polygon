@@ -50,7 +50,15 @@ def create_subfolders_and_links(datapath="data", folder_dict=None):
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     """Create data subfolders and symbolic links as indicated in config file."""
-    create_subfolders_and_links(folder_dict=cfg.datapaths)
+    datapath = cfg.datapaths.base_path
+    if datapath is None:
+        datapath = "data"
+    if not os.path.exists(datapath):
+        LOGGER.info(f"Creating base path {datapath}")
+        os.makedirs(datapath, exist_ok=True)
+    else:
+        LOGGER.info(f"Base path {datapath} already exists")
+    create_subfolders_and_links(datapath=datapath, folder_dict=cfg.datapaths.dirs)
 
 if __name__ == "__main__":
     main()
