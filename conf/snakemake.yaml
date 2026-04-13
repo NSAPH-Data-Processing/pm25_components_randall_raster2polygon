@@ -22,7 +22,6 @@ components: # the component data to be processed
   - dust
   - bc
   - om
-  - om_h2o # this comes from the same om file, but the file has 2 layers, so we repeat the step in the pipeline
 
 years: # the years to be processed
   - 2000
