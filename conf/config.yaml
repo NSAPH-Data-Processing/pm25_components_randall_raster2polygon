@@ -1,9 +1,9 @@
 # top level config file for the project
 defaults:
   - _self_
-  - datapaths: cannon_datapaths_v6_components
+  - datapaths: cannon_v6na
   - shapefiles: shapefiles
-  - satellite_component: us_components  # V5NA default; override with us_components_v6na for V6NA
+  - satellite_component: us_components_v6na  
 
 version: V6NA  # algorithm version: V5NA or V6NA — must match satellite_component used
 
@@ -21,18 +21,24 @@ show_progress: false
 plot_output: false  # plotting increases runtime, only use for debugging
 
 # == component for the satellite_component pipeline
-component: no3
-  # - so4
-  # - ss
-  # - nh4
-  # - dust
-  # - bc
-  # - om
-  # - om_h2o # this is actually the same as om, but the file for om has 2 layers in it, so we just repeat the step in the pipeline
+component: 
+  - no3
+  - so4
+  - ss
+  - nh4
+  - dust
+  - bc
+  - om
 
 # == components list for merge step (should match snakemake.yaml components)
 components:
   - no3
+  - so4
+  - ss
+  - nh4
+  - dust
+  - bc
+  - om
 
 hydra:
   run:
