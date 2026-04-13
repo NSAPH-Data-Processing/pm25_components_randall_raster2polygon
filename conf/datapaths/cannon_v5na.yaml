@@ -2,7 +2,7 @@ base_path: data/V5NA
 
 dirs:
   input:
-    pm25_components__randall:
+    components:
       yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/raw/yearly/
       monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/raw/monthly/
     shapefiles: null # the pipeline will download the shapefiles

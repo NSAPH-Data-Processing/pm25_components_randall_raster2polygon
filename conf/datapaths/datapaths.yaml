@@ -3,18 +3,16 @@ base_path: null
 
 dirs:
   input:
-    pm25_components__randall:
+    components:
       yearly: null
       monthly: null
     shapefiles: null
 
   intermediate:
-    pm25_components__randall:
       yearly: null
       monthly: null
 
   output:
-    pm25_components__randall:
       zcta_yearly: null
       zcta_monthly: null
       county_yearly: null

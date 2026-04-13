@@ -44,8 +44,8 @@ longitude_layer: "lon"
 component:
   no3:
     file_prefix: "V6NA01.CNNPM25.NO3"
-    layer: "NO3"        # TODO: verify with xarray.open_dataset(file).data_vars
-    zipname: "NO3"      # Box downloads the component folder as NO3.zip
+    layer: "NO3"        
+    zipname: "NO3"      
   so4:
     file_prefix: "V6NA01.CNNPM25.SO4"
     layer: "SO4"

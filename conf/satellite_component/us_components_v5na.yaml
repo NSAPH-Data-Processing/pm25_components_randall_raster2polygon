@@ -1,0 +1,62 @@
+yearly:
+  url:
+    no3: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323206597335
+    so4: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323191646116
+    ss: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323410175012
+    nh4: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323199630279
+    dust: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323406212419
+    bc: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211271004
+    om: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323207493278
+    om_h2o: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323207493278
+
+  zipname: Annual
+  
+
+monthly:
+  url:
+    no3: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323206167927
+    so4: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323191528469
+    ss: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323410958392
+    nh4: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323200190372
+    dust: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323406270900
+    bc: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323213972738
+    om: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211138164
+    om_h2o: https://wustl.app.box.com/s/i15cm0rgyjvbmwwjtomo5tmdmoyekl6g/folder/323211138164
+
+  zipname: Monthly
+
+  # file_prefix: "V5.NA.05.02.HybridPM25c_0p10.NorthAmerica"
+  #file name convention is V5GL04.HybridPM25.NorthAmerica.yyyymm-yyyymm.nc
+  # e.g. V5GL04.HybridPM25.NorthAmerica.201801-201812.nc is the file for 2018
+  # "V5GL04.HybridPM25.NorthAmerica" #lower resolution
+  # "V5GL04.HybridPM25c_0p10.NorthAmerica" #higher resolution
+
+#layer: ??? # changes on the basis of the component, but each download has only 1 layer
+date_format: julian  # V5NA uses yyyyjjj Julian day format (e.g. 2020001-2020365)
+latitude_layer: "lat"
+longitude_layer: "lon"
+component: 
+  no3: 
+    file_prefix: "V5NA05.02.HybridNO3-NO3.NorthAmerica"
+    layer: "GWRNO3"
+  so4: 
+    file_prefix: "V5NA05.02.HybridSO4-SO4.NorthAmerica"
+    layer: "GWRSO4"
+  ss: 
+    file_prefix: "V5NA05.02.HybridSS-SS.NorthAmerica"
+    layer: "GWRSS"
+  nh4: 
+    file_prefix: "V5NA05.02.HybridNH4-NH4.NorthAmerica"
+    layer: "GWRNH4"
+  dust:
+    file_prefix: "V5NA05.02.HybridDUST-DUST.NorthAmerica"
+    layer: "GWRDUST"
+  bc:
+    file_prefix: "V5NA05.02.HybridBC-BC.NorthAmerica"
+    layer: "GWRBC"
+  om:
+    file_prefix: "V5NA05.02.HybridOM-OM.NorthAmerica"
+    layer: "GWROM"
+  om_h2o:
+    file_prefix: "V5NA05.02.HybridOM-OM.NorthAmerica"
+    layer: "GWROM_H2O"
