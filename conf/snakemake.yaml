@@ -24,8 +24,6 @@ components: # the component data to be processed
   - om
 
 years: # the years to be processed
-  - 1998
-  - 1999
   - 2000
   - 2001
   - 2002
