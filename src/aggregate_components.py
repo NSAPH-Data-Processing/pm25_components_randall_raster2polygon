@@ -98,12 +98,13 @@ def main(cfg):
     shapefile_years_list = list(cfg.shapefiles[cfg.polygon_name].keys())
     shapefile_year = available_shapefile_year(cfg.year, shapefile_years_list)
 
-    shape_path = f'data/input/shapefiles/shapefile_{cfg.polygon_name}_{shapefile_year}/shapefile.shp'
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    shape_path = os.path.join(base_path, "input", "shapefiles", f"shapefile_{cfg.polygon_name}_{shapefile_year}", "shapefile.shp")
     polygon = gpd.read_file(shape_path)
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
     # == filenames to be aggregated for this component
-    component_path = pathlib.Path(f"data/input/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{cfg.component}/")
+    component_path = pathlib.Path(os.path.join(base_path, "input", "components", cfg.temporal_freq, cfg.component))
     if not component_path.exists():
         LOGGER.error(f"Component path {component_path} does not exist.")
         return
@@ -193,8 +194,11 @@ def main(cfg):
         return
 
     # == save individual component output file
-    output_dir = f"data/intermediate/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{cfg.component}/"
-    output_filename = f"{output_dir}{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+    output_dir = os.path.join(base_path, "intermediate", cfg.temporal_freq, cfg.component)
+    output_filename = os.path.join(
+        output_dir,
+        f"{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+    )
 
     os.makedirs(output_dir, exist_ok=True)
 

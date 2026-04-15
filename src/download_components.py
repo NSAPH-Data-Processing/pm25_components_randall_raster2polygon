@@ -27,9 +27,8 @@ def main(cfg):
     url_cfg = cfg.satellite_component[cfg['temporal_freq']]
     url = url_cfg.url[component]
 
-    download_dir = (
-        f"data/input/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{component}/"
-    )
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    download_dir = os.path.join(base_path, "input", "components", cfg.temporal_freq, component)
     download_dir = os.path.abspath(download_dir)  # make absolute path
 
     # Per-component zipname takes priority (V6NA: each component folder is named after the

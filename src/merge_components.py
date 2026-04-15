@@ -21,10 +21,17 @@ def main(cfg):
     components = cfg.components
     LOGGER.info(f"Components to merge: {list(components)}")
 
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    intermediate_root = os.path.join(base_path, "intermediate", cfg.temporal_freq)
+
     # Load all component files and merge them
     component_dfs = []
     for component in components:
-        component_file = f"data/intermediate/pm25_components__randall/{cfg.version}/{cfg.temporal_freq}/{component}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+        component_file = os.path.join(
+            intermediate_root,
+            component,
+            f"{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+        )
         
         if not os.path.exists(component_file):
             LOGGER.error(f"Component file not found: {component_file}")
@@ -60,8 +67,12 @@ def main(cfg):
     LOGGER.info(f"Columns: {list(final_df.columns)}")
 
     # == save output file
-    output_dir = f"data/output/pm25_components__randall/{cfg.version}/{cfg.polygon_name}_{cfg.temporal_freq}/"
-    output_filename = f"{output_dir}pm25_components__randall__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+    output_dir = os.path.join(base_path, "output", f"{cfg.polygon_name}_{cfg.temporal_freq}")
+
+    output_filename = os.path.join(
+        output_dir,
+        f"pm25_components__randall__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+    )
 
     os.makedirs(output_dir, exist_ok=True)
 
