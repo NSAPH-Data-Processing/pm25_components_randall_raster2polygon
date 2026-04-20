@@ -112,15 +112,16 @@ The configuration structure within the `/conf` folder allows you to modify the i
 All input, intermediate, and output data is segregated by version:
 
 ```
-data/
-├── input/pm25_components__randall/
-│   ├── V5NA/{temporal_freq}/{component}/          ← V5NA raw NetCDF files (flat)
-│   └── V6NA/{temporal_freq}/{component}/{year}/   ← V6NA raw NetCDF files (year subfolders for monthly)
-├── intermediate/pm25_components__randall/
-│   ├── V5NA/{temporal_freq}/{component}/          ← per-component parquet
+{base_path}/
+├── input/
+│   └── components/
+│       ├── V5NA/{temporal_freq}/{component}/          ← V5NA raw NetCDF files (flat)
+│       └── V6NA/{temporal_freq}/{component}/{year}/   ← V6NA raw NetCDF files (year subfolders for monthly)
+├── intermediate/
+│   ├── V5NA/{temporal_freq}/{component}/              ← per-component parquet
 │   └── V6NA/{temporal_freq}/{component}/
-└── output/pm25_components__randall/
-    ├── V5NA/{polygon_name}_{temporal_freq}/       ← merged output parquet
+└── output/
+    ├── V5NA/{polygon_name}_{temporal_freq}/           ← merged output parquet
     └── V6NA/{polygon_name}_{temporal_freq}/
 ```
 
