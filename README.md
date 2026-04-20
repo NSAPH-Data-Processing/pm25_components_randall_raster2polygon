@@ -233,7 +233,7 @@ mkdir <path>/satellite_pm25_components_raster2polygon
 
 ```bash
 docker pull nsaph/satellite_pm25_components_raster2polygon
-docker run -v <path>:/app/data/input/pm25_components__randall/yearly <path>/satellite_pm25_components_raster2polygon/:/app/data/output/pm25_components__randall nsaph/satellite_pm25_components_raster2polygon
+docker run -v <path>/input/components/yearly:/app/data/input/components/yearly -v <path>/satellite_pm25_components_raster2polygon/:/app/data/output nsaph/satellite_pm25_components_raster2polygon
 ```
 
 If you are interested in storing the input raw and intermediate data run
