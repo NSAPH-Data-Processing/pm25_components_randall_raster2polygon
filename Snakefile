@@ -20,9 +20,9 @@ years_list = config['years']
 
 # Map algorithm version to its satellite_component Hydra config group name
 satellite_component_config = {
-    'V5NA': 'us_components',
+    'V5NA': 'us_components_v5na',
     'V6NA': 'us_components_v6na',
-}.get(version, 'us_components')
+}.get(version, 'us_components_v5na')
 
 # === Load Hydra Config ===
 # get hydra config variables from the config.yaml file, applying the version-specific satellite_component
