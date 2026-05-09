@@ -3,6 +3,7 @@ import hydra
 import logging  
 import pathlib
 import os
+import yaml
 
 from hydra.core.hydra_config import HydraConfig
 
@@ -10,6 +11,20 @@ from hydra.core.hydra_config import HydraConfig
 # configure logger to print at info level
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+VERSIONS_CONFIG = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "conf", "versions.yaml")
+)
+
+
+def output_label_for_version(version):
+    version = str(version).strip().upper()
+    with open(VERSIONS_CONFIG, "r") as f:
+        versions_cfg = yaml.safe_load(f)
+
+    if version not in versions_cfg:
+        raise ValueError(f"Unknown version '{version}'. Expected one of {list(versions_cfg.keys())}.")
+
+    return versions_cfg[version].get("output_label", version)
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
@@ -68,10 +83,11 @@ def main(cfg):
 
     # == save output file
     output_dir = os.path.join(base_path, "output", f"{cfg.polygon_name}_{cfg.temporal_freq}")
+    output_label = output_label_for_version(cfg.version)
 
     output_filename = os.path.join(
         output_dir,
-        f"pm25_components__randall__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+        f"pm25_components__randall__{output_label}_{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
     )
 
     os.makedirs(output_dir, exist_ok=True)
@@ -79,8 +95,11 @@ def main(cfg):
     output_path = os.path.abspath(output_filename)
     LOGGER.info(f"Saving final output to {output_path}")
     
-    # save to parquet
-    final_df.to_parquet(output_path, index=False)
+    # Write through a temp file so replacing a versioned symlink does not
+    # overwrite the existing unsuffixed parquet that the symlink points to.
+    tmp_output_path = f"{output_path}.tmp"
+    final_df.to_parquet(tmp_output_path, index=False)
+    os.replace(tmp_output_path, output_path)
 
     LOGGER.info(f"Successfully created merged file: {output_path}")
 

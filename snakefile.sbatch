@@ -4,4 +4,4 @@
 #SBATCH --mem 128GB # memory per job in the array 
 #SBATCH -t 1-12:00 # time (D-HH:MM) 
 
-snakemake --cores 12 --rerun-incomplete
+snakemake --cores 12 --rerun-incomplete -C version=V5NA
