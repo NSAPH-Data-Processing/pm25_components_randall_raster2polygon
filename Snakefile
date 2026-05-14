@@ -14,20 +14,30 @@ polygon_names = config['polygon_name']
 shapefile_years = config['shapefile_year']
 components = config['components']
 components_str = ",".join(components)
-version = config.get('version', 'V5NA')  # V5NA or V6NA — selects data source and directory layout
+version = str(config.get('version', 'V6NA')).strip().upper()  # V5NA or V6NA — selects data source and directory layout
 months_list = [str(i).zfill(2) for i in range(1, 12 + 1)]
 years_list = config['years']
 
-# Map algorithm version to its satellite_component Hydra config group name
-satellite_component_config = {
-    'V5NA': 'us_components_v5na',
-    'V6NA': 'us_components_v6na',
-}.get(version, 'us_components_v5na')
+with open("conf/versions.yaml", "r") as f:
+    versions_cfg = yaml.safe_load(f)
+
+if version not in versions_cfg:
+    raise ValueError(f"Unknown version '{version}'. Expected one of {list(versions_cfg.keys())}.")
+
+version_cfg = versions_cfg[version]
+satellite_component_config = version_cfg["satellite_component"]
+datapaths_config = version_cfg["datapaths"]
+output_label = version_cfg.get("output_label", version)
+script_overrides = (
+    f"satellite_component={satellite_component_config} "
+    f"datapaths={datapaths_config} "
+    f"version={version}"
+)
 
 # === Load Hydra Config ===
-# get hydra config variables from the config.yaml file, applying the version-specific satellite_component
+# get hydra config variables from the config.yaml file, applying the version-specific config groups
 with initialize(version_base=None, config_path="conf"):
-    hydra_cfg = compose(config_name="config", overrides=[f"satellite_component={satellite_component_config}"])
+    hydra_cfg = compose(config_name="config", overrides=script_overrides.split())
 
 satellite_component_cfg = hydra_cfg.satellite_component
 shapefiles_cfg = hydra_cfg.shapefiles
@@ -37,7 +47,12 @@ base_path = datapaths_cfg.base_path if datapaths_cfg.base_path else "data"
 shapefiles_dir = os.path.join(base_path, "input", "shapefiles")
 components_input_pattern = os.path.join(base_path, "input", "components", "{temporal_freq}", "{component}")
 intermediate_pattern = os.path.join(base_path, "intermediate", "{temporal_freq}", "{component}", "{component}__{polygon_name}_{temporal_freq}_{year}.parquet")
-output_pattern = os.path.join(base_path, "output", "{polygon_name}_{temporal_freq}", "pm25_components__randall__{polygon_name}_{temporal_freq}_{year}.parquet")
+output_pattern = os.path.join(
+    base_path,
+    "output",
+    "{polygon_name}_{temporal_freq}",
+    f"pm25_components__randall__{output_label}_{{polygon_name}}_{{temporal_freq}}_{{year}}.parquet",
+)
 
 output_pattern_yearly = output_pattern.replace("{temporal_freq}", "yearly")
 output_pattern_monthly = output_pattern.replace("{temporal_freq}", "monthly")
@@ -64,7 +79,8 @@ rule download_shapefiles:
     output:
         os.path.join(shapefiles_dir, "shapefile_{polygon}_{shapefile_year}", "shapefile.shp")
     shell:
-        "python src/download_shapefile.py polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
+        f"python src/download_shapefile.py {script_overrides} "
+        "polygon_name={wildcards.polygon} shapefile_year={wildcards.shapefile_year}"
 
 # this rule launches the download of all the components. It essentially forces download_component rule to run
 rule download_all_components:
@@ -83,9 +99,7 @@ rule download_component:
     log:
         f"logs/download_components_{{component}}_{{temporal_freq}}_{version}.log"
     shell:
-       f"python src/download_components.py "
-       f"satellite_component={satellite_component_config} "
-       f"++version={version} "
+       f"python src/download_components.py {script_overrides} "
        "component={wildcards.component} ++temporal_freq={wildcards.temporal_freq} &> {log}"
 
 
@@ -106,9 +120,7 @@ rule aggregate_single_component:
         f"logs/aggregate_{{component}}_{{polygon_name}}_{{temporal_freq}}_{{year}}_{version}.log"
     shell:
         (
-            "PYTHONPATH=. python src/aggregate_components.py " +
-            f"satellite_component={satellite_component_config} " +
-            f"++version={version} " +
+            f"PYTHONPATH=. python src/aggregate_components.py {script_overrides} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq={wildcards.temporal_freq} ++year={wildcards.year} ++component={wildcards.component} " +
             "&> {log}"
         )
@@ -128,9 +140,7 @@ rule merge_components_yearly:
         f"logs/merge_yearly_components_{{polygon_name}}_yearly_{{year}}_{version}.log"
     shell:
         (
-            "PYTHONPATH=. python src/merge_components.py " +
-            f"satellite_component={satellite_component_config} " +
-            f"++version={version} " +
+            f"PYTHONPATH=. python src/merge_components.py {script_overrides} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=yearly ++year={wildcards.year} " +
             f"'++components=[{components_str}]' " +
             "&> {log}"
@@ -151,9 +161,7 @@ rule merge_components_monthly:
         f"logs/merge_monthly_components_{{polygon_name}}_monthly_{{year}}_{version}.log"
     shell:
         (
-            "PYTHONPATH=. python src/merge_components.py " +
-            f"satellite_component={satellite_component_config} " +
-            f"++version={version} " +
+            f"PYTHONPATH=. python src/merge_components.py {script_overrides} " +
             "polygon_name={wildcards.polygon_name} ++temporal_freq=monthly ++year={wildcards.year} " +
             f"'++components=[{components_str}]' " +
             "&> {log}"
