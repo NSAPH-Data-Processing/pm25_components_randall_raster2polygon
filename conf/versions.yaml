@@ -1,0 +1,9 @@
+V5NA:
+  satellite_component: us_components_v5na
+  datapaths: cannon_v5na
+  output_label: V5NA
+
+V6NA:
+  satellite_component: us_components_v6na
+  datapaths: cannon_v6na
+  output_label: V6NA

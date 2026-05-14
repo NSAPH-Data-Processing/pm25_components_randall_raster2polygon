@@ -3,6 +3,7 @@ import hydra
 import logging  
 import pathlib
 import os
+import yaml
 
 from hydra.core.hydra_config import HydraConfig
 
@@ -10,21 +11,42 @@ from hydra.core.hydra_config import HydraConfig
 # configure logger to print at info level
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+VERSIONS_CONFIG = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "conf", "versions.yaml")
+)
+
+
+def output_label_for_version(version):
+    version = str(version).strip().upper()
+    with open(VERSIONS_CONFIG, "r") as f:
+        versions_cfg = yaml.safe_load(f)
+
+    if version not in versions_cfg:
+        raise ValueError(f"Unknown version '{version}'. Expected one of {list(versions_cfg.keys())}.")
+
+    return versions_cfg[version].get("output_label", version)
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     # get aggregation defaults
-    LOGGER.info(f"Running merge for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year}")
+    LOGGER.info(f"Running merge for: {cfg.temporal_freq} {cfg.polygon_name} {cfg.year} version={cfg.version}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
-    components = cfg.satellite_component.component.keys()
+    components = cfg.components
     LOGGER.info(f"Components to merge: {list(components)}")
+
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    intermediate_root = os.path.join(base_path, "intermediate", cfg.temporal_freq)
 
     # Load all component files and merge them
     component_dfs = []
     for component in components:
-        component_file = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{component}/{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+        component_file = os.path.join(
+            intermediate_root,
+            component,
+            f"{component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+        )
         
         if not os.path.exists(component_file):
             LOGGER.error(f"Component file not found: {component_file}")
@@ -60,16 +82,24 @@ def main(cfg):
     LOGGER.info(f"Columns: {list(final_df.columns)}")
 
     # == save output file
-    output_dir = f"data/output/pm25_components__randall/{cfg.polygon_name}_{cfg.temporal_freq}/"
-    output_filename = f"{output_dir}pm25_components__randall__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+    output_dir = os.path.join(base_path, "output", f"{cfg.polygon_name}_{cfg.temporal_freq}")
+    output_label = output_label_for_version(cfg.version)
+
+    output_filename = os.path.join(
+        output_dir,
+        f"pm25_components__randall__{output_label}_{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+    )
 
     os.makedirs(output_dir, exist_ok=True)
 
     output_path = os.path.abspath(output_filename)
     LOGGER.info(f"Saving final output to {output_path}")
     
-    # save to parquet
-    final_df.to_parquet(output_path, index=False)
+    # Write through a temp file so replacing a versioned symlink does not
+    # overwrite the existing unsuffixed parquet that the symlink points to.
+    tmp_output_path = f"{output_path}.tmp"
+    final_df.to_parquet(tmp_output_path, index=False)
+    os.replace(tmp_output_path, output_path)
 
     LOGGER.info(f"Successfully created merged file: {output_path}")
 

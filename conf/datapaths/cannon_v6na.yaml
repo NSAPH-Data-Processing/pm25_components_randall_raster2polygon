@@ -1,0 +1,19 @@
+# FASRC cannon cluster paths for V6NA PM2.5 components data
+base_path: data/V6NA
+
+dirs:
+  input:
+    components:
+      yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/raw/yearly/
+      monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/raw/monthly/
+    shapefiles: null # the pipeline will download the shapefiles
+
+  intermediate:
+      yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/.intermediate/yearly/
+      monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/.intermediate/monthly/
+
+  output:
+      zcta_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/zcta_yearly/
+      zcta_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/zcta_monthly/
+      county_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/county_yearly/
+      county_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V6NA/county_monthly/

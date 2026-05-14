@@ -1,0 +1,18 @@
+base_path: data/V5NA
+
+dirs:
+  input:
+    components:
+      yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/raw/yearly/
+      monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/raw/monthly/
+    shapefiles: null # the pipeline will download the shapefiles
+
+  intermediate:
+    yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/.intermediate/yearly/
+    monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/.intermediate/monthly/
+
+  output:
+    zcta_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/zcta_yearly/
+    zcta_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/zcta_monthly/
+    county_yearly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/county_yearly/
+    county_monthly: /n/dominici_lab/lab/lego/environmental/pm25_components__randall/V5NA/county_monthly/

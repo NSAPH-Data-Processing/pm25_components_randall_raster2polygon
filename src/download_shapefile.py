@@ -8,7 +8,8 @@ import wget
 def main(cfg):
     url = cfg.shapefiles[cfg.polygon_name][cfg.shapefile_year].url
 
-    tgt = f"data/input/shapefiles/shapefile_{cfg.polygon_name}_{cfg.shapefile_year}"
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    tgt = os.path.join(base_path, "input", "shapefiles", f"shapefile_{cfg.polygon_name}_{cfg.shapefile_year}")
 
     tgtdir = os.path.dirname(tgt)
     tgtfile = os.path.basename(tgt)

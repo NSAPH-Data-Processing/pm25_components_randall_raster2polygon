@@ -4,7 +4,7 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import hydra
-import logging  
+import logging
 import pathlib
 import os
 import re
@@ -17,7 +17,7 @@ from utils.faster_zonal_stats import polygon_to_raster_cells
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
-# mapping for month abbreviations to numbers
+# mapping for month abbreviations to numbers (used for V5NA Julian-day filenames)
 month_map = {
     "JAN": "01", "FEB": "02", "MAR": "03", "APR": "04",
     "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08",
@@ -33,14 +33,64 @@ def available_shapefile_year(year, shapefile_years_list: list):
     for shapefile_year in sorted(shapefile_years_list, reverse=True):
         if year >= shapefile_year:
             return shapefile_year
- 
+
     return min(shapefile_years_list)  # Returns the last element if year is greater than the last element
+
+
+def extract_year_month(filename, date_format, temporal_freq):
+    """
+    Extract year and month from a NetCDF filename based on the configured date format.
+
+    date_format options:
+      - 'julian': V5NA format, filenames contain yyyyjjj-yyyyjjj (Julian day ranges)
+                  e.g. V5NA05.02.HybridNO3-NO3.NorthAmerica.2020001-2020365.nc
+                  Monthly files additionally contain 3-letter month abbreviations (JAN, FEB, …)
+      - 'yyyymm': V6NA format, filenames contain yyyymm-yyyymm
+                  e.g. V6NA01.HybridNO3-NO3.NorthAmerica.202001-202012.nc
+
+    Returns (year_str, month_str) where month_str is None for yearly files.
+    Raises ValueError if parsing fails.
+    """
+    if date_format == 'julian':
+        # Matches either "yyyy-yyyy-" or "yyyyjjj-yyyyjjj" patterns
+        match = re.search(r"(20\d{2})(?:-\1-|\d{3}-\1\d{3})", filename)
+        file_year = match.group(1) if match else None
+        if not file_year:
+            raise ValueError(f"Filename {filename} does not contain a valid year (expected Julian day format yyyyjjj-yyyyjjj).")
+
+        month = None
+        if temporal_freq == "monthly":
+            match = re.search(r"(?<!\d)(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?!\w)", filename)
+            month_abbr = match.group(0) if match else None
+            if not month_abbr:
+                raise ValueError(f"Filename {filename} does not contain a valid month abbreviation (expected Julian format).")
+            month = month_map[month_abbr]
+
+    elif date_format == 'yyyymm':
+        # Matches yyyymm-yyyymm, e.g. 202001-202012
+        match = re.search(r"(20\d{2})\d{2}-20\d{2}\d{2}", filename)
+        file_year = match.group(1) if match else None
+        if not file_year:
+            raise ValueError(f"Filename {filename} does not contain a valid year (expected yyyymm-yyyymm format).")
+
+        month = None
+        if temporal_freq == "monthly":
+            # Extract the 2-digit month from the first yyyymm token
+            match = re.search(r"20\d{2}(\d{2})-20\d{2}\d{2}", filename)
+            month = match.group(1) if match else None
+            if not month:
+                raise ValueError(f"Filename {filename} does not contain a valid month (expected yyyymm format).")
+
+    else:
+        raise ValueError(f"Unknown date_format '{date_format}'. Expected 'julian' or 'yyyymm'.")
+
+    return file_year, month
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def main(cfg):
     # get aggregation defaults
-    LOGGER.info(f"Running aggregation for: {cfg.component} {cfg.temporal_freq} {cfg.polygon_name} {cfg.year}")
+    LOGGER.info(f"Running aggregation for: {cfg.component} {cfg.temporal_freq} {cfg.polygon_name} {cfg.year} version={cfg.version}")
     logging_dir = HydraConfig.get().runtime.output_dir
 
     # == load shapefile
@@ -48,17 +98,20 @@ def main(cfg):
     shapefile_years_list = list(cfg.shapefiles[cfg.polygon_name].keys())
     shapefile_year = available_shapefile_year(cfg.year, shapefile_years_list)
 
-    shape_path = f'data/input/shapefiles/shapefile_{cfg.polygon_name}_{shapefile_year}/shapefile.shp'
+    base_path = cfg.datapaths.base_path if cfg.datapaths.base_path else "data"
+    shape_path = os.path.join(base_path, "input", "shapefiles", f"shapefile_{cfg.polygon_name}_{shapefile_year}", "shapefile.shp")
     polygon = gpd.read_file(shape_path)
     polygon_ids = polygon[cfg.shapefiles[cfg.polygon_name][shapefile_year].idvar].values
 
     # == filenames to be aggregated for this component
-    component_path = pathlib.Path(f"data/input/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/")
+    component_path = pathlib.Path(os.path.join(base_path, "input", "components", cfg.temporal_freq, cfg.component))
     if not component_path.exists():
         LOGGER.error(f"Component path {component_path} does not exist.")
         return
 
-    filenames = component_path.glob("*.nc")
+    # Use recursive glob (**) to support V6NA monthly structure where files sit in
+    # year subfolders (e.g. monthly/no3/2001/file.nc). Also works for V5NA flat layout.
+    filenames = component_path.glob("**/*.nc")
     filenames = [str(f) for f in filenames if f.is_file()]
 
     if not filenames:
@@ -90,31 +143,21 @@ def main(cfg):
         verbose=cfg.show_progress,
     )
 
+    # Date format drives how year/month are parsed from filenames
+    date_format = getattr(cfg.satellite_component, 'date_format', 'julian')
+
     # Store component data for all files
     component_data = []
 
     # == aggregate for all the files using the same mapping
     for i, filename in enumerate(filenames):
-        
-        # Extract year from filename
-        match = re.search(r"(20\d{2})(?:-\1-|\d{3}-\1\d{3})", filename)
-        file_year = match.group(1) if match else None
-        if not file_year:
-            raise ValueError(f"Filename {filename} does not contain a valid year.")
-        
+
+        file_year, month = extract_year_month(filename, date_format, cfg.temporal_freq)
+
         # Only process files for the requested year
         if int(file_year) != cfg.year:
             continue
-            
-        if cfg.temporal_freq == "monthly":
-            match = re.search(r"(?<!\d)(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?!\w)", filename)
-            month_abbr = match.group(0) if match else None
-            if not month_abbr:
-                raise ValueError(f"Filename {filename} does not contain a valid month abbreviation.")
-            month = month_map[month_abbr]
-        else:
-            month = None
-            
+
         LOGGER.info(f"Aggregating {filename} as {cfg.temporal_freq} for year {file_year} month {month if cfg.temporal_freq == 'monthly' else 'N/A'}")
 
         if i > 0:
@@ -133,14 +176,14 @@ def main(cfg):
             stats.append(np.nanmean(cells))
 
         df_data = {
-            cfg.component: stats, 
+            cfg.component: stats,
             "year": int(file_year),
             cfg.polygon_name: polygon_ids
         }
-        
+
         if cfg.temporal_freq == "monthly":
             df_data["month"] = int(month)
-            
+
         component_data.append(pd.DataFrame(df_data))
 
     # concatenate all data (necessary for monthly files to combine all months)
@@ -151,8 +194,11 @@ def main(cfg):
         return
 
     # == save individual component output file
-    output_dir = f"data/intermediate/pm25_components__randall/{cfg.temporal_freq}/{cfg.component}/"
-    output_filename = f"{output_dir}{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet"
+    output_dir = os.path.join(base_path, "intermediate", cfg.temporal_freq, cfg.component)
+    output_filename = os.path.join(
+        output_dir,
+        f"{cfg.component}__{cfg.polygon_name}_{cfg.temporal_freq}_{cfg.year}.parquet",
+    )
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -160,7 +206,7 @@ def main(cfg):
     LOGGER.info(f"Saving component output to {output_path}")
     LOGGER.info(f"Component dataset shape: {final_df.shape}")
     LOGGER.info(f"Columns: {list(final_df.columns)}")
-    
+
     # save to parquet
     final_df.to_parquet(output_path, index=False)
 
